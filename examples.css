@@ -1,0 +1,7 @@
+.legend {
+    margin-top: 20px;
+}
+
+.tick line {
+    stroke-dasharray: 2, 2;
+}

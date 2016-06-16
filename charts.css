@@ -1,0 +1,13 @@
+.axis line,
+.axis path {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.lineChartLegend .color-example {
+    height: 15px;
+    width: 15px;
+    margin-right: 10px;
+}
+
