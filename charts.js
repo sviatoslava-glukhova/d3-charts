@@ -16,7 +16,7 @@
                         ticksCount: 5,
                         dateFormat: '%Y%m%d',
                         datePropName: 'date',
-                        showVerticalLines: false,
+                        showVerticalLines: true,
                         showTicksText: true
                     },
                     yAxis: {
@@ -55,6 +55,7 @@
             var xAxis = d3.svg.axis()
                 .scale(x)
                 .ticks(props.xAxis.ticksCount)
+                .outerTickSize('0')
                 .orient("bottom");
 
             if (props.xAxis.showVerticalLines) {
@@ -64,6 +65,7 @@
             var yAxis = d3.svg.axis()
                 .scale(y)
                 .ticks(props.yAxis.ticksCount)
+                .outerTickSize('0')
                 .orient("left");
 
             if (props.yAxis.showHorizontalLines) {
@@ -133,7 +135,7 @@
 
 
                 if (!props.xAxis.showTicksText) {
-                    xAxis.selectAll('.tick text').remove()
+                    xAxis.selectAll('.tick text').remove();
                 }
             }
 
@@ -149,7 +151,8 @@
 
 
                 if (!props.yAxis.showTicksText) {
-                    yAxis.selectAll('.tick text').remove()
+                    yAxis.selectAll('.tick text').remove();
+                    //  yAxis.select('.domain').remove();
                 }
             }
 
