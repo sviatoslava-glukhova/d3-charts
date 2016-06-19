@@ -1,6 +1,6 @@
 (function () {
 
-    var data = [
+    var barChartData = [
             {"value1": 1, "value2": 4, "value3": 2, "date": "20111212"},
             {"value1": 2, "value2": 2, "value3": 6, "date": "20111213"},
             {"value1": 4, "value2": 9, "value3": 7, "date": "20111214"},
@@ -8,8 +8,8 @@
             {"value1": 3, "value2": 5, "value3": 6, "date": "20111216"},
             {"value1": 1, "value2": 4, "value3": 8, "date": "20111217"}
         ],
-        options = {
-            appendTo: '#timeLineChart',
+        barChartOptions = {
+            appendTo: '#aa',
             colors: [
                 "#11b4e4",
                 "#66656B",
@@ -30,6 +30,6 @@
             }
         };
 
-    Charts.generateLineChart(options, data);
+    Charts.generateSimpleBarChart(barChartOptions, barChartData);
 
 }());

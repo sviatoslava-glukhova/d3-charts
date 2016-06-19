@@ -2,25 +2,69 @@
 <html>
 
 <head>
-    <script src="https://code.jquery.com/jquery-3.0.0.min.js"
-            integrity="sha256-JmvOoLtYsmqlsWxa7mDSLMwa6dZ9rrIdtrrVYRnDRH0=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-    <link rel="stylesheet" href="charts.css" />
+    <!-- <script src="https://code.jquery.com/jquery-3.0.0.min.js"
+             integrity="sha256-JmvOoLtYsmqlsWxa7mDSLMwa6dZ9rrIdtrrVYRnDRH0=" crossorigin="anonymous"></script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    -->
 
-    <link rel="stylesheet" href="examples.css" />
-   </head>
+
+    <script src="libs/jquery.js"></script>
+    <script src="libs/d3.min.js"></script>
+    <link rel="stylesheet" href="libs/bootstrap.css">
+
+    <link rel="stylesheet" href="charts.css"/>
+
+    <link rel="stylesheet" href="examples.css"/>
+</head>
 
 <body>
 <div class="container">
     <div class="row">
-        <div class="col-xs-8" id="timeLineChart"></div>
-        <div class="col-xs-4 legend" id="timeLineChartLegend"></div>
+        <div class="col-xs-12 chart-container">
+            <h3>Simple line chart</h3>
+
+            <div id="timeLineChartSimple"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="chart-container clearfix">
+            <div class="col-xs-12"><h3>Line chart with ledend</h3></div>
+            <div class="col-xs-8" id="timeLineChart"></div>
+            <div class="col-xs-4 legend" id="timeLineChartLegend"></div>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 chart-container">
+            <h3>Simple area chart</h3>
+
+            <div id="timeAreaChartSimple"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="chart-container clearfix">
+            <div class="col-xs-12"><h3>Line chart with ledend</h3></div>
+            <div class="col-xs-8" id="timeAreaChart"></div>
+            <div class="col-xs-4 legend" id="timeAreaChartLegend"></div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 chart-container">
+            <h3>Simple area chart</h3>
+
+            <div id="groupedBarChart"></div>
+        </div>
     </div>
 </div>
 
 <script src="charts.js"></script>
-<script src="examples.js"></script>
+<script src="examplesLineCharts.js"></script>
+<script src="examplesAreaCharts.js"></script>
+<script src="examplesGroupedBarCharts.js"></script>
+<!--<script src="examplesBarCharts.js"></script>-->
 </body>
 
 </html>

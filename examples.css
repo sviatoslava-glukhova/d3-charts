@@ -1,7 +1,30 @@
+body {
+    background-color: #eee;
+}
+
+.chart-container {
+    background-color: #fff;
+    margin: 20px 0px;
+    padding-bottom: 20px;
+    border: 1px solid #dddddd;
+    box-shadow: 5px 5px 5px #ddd;
+}
+
+.chart-container h3 {
+    border-bottom: 1px solid #dddddd;
+    margin-bottom: 20px;
+}
+
 .legend {
     margin-top: 20px;
 }
 
 .tick line {
     stroke-dasharray: 2, 2;
+}
+
+#groupedBarChart .tick line,
+#groupedBarChart .x .domain,
+#groupedBarChart .y .domain {
+    display: none;
 }
