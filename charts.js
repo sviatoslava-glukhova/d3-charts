@@ -12,22 +12,22 @@
                         height: null
                     },
                     xAxis: {
-                        showAxis: true,
+                        showAxis: false,
                         ticksCount: 5,
                         dateFormat: '%Y%m%d',
                         datePropName: 'date',
-                        showVerticalLines: true,
-                        showTicksText: true
+                        showVerticalLines: false,
+                        showTicksText: false
                     },
                     yAxis: {
-                        showAxis: true,
+                        showAxis: false,
                         ticksCount: 5,
                         showHorizontalLines: false,
-                        showTicksText: true
+                        showTicksText: false
                     },
                     showLineLabels: false,
                     legend: {
-                        show: true,
+                        show: false,
                         appendTo: 'body',
                         keysAliases: null
                     }
@@ -219,25 +219,25 @@
                     colors: [],
                     strokeColors: [],
                     strokeWidth: 1,
-                    interpolate: 'basis',
+                    interpolate: 'none',
                     margins: {top: 0, right: 0, bottom: 0, left: 0},
                     dimentions: {
                         width: null,
                         height: null
                     },
                     xAxis: {
-                        showAxis: true,
+                        showAxis: false,
                         ticksCount: 5,
                         dateFormat: '%Y%m%d',
                         datePropName: 'date',
-                        showVerticalLines: true,
-                        showTicksText: true
+                        showVerticalLines: false,
+                        showTicksText: false
                     },
                     yAxis: {
-                        showAxis: true,
+                        showAxis: false,
                         ticksCount: 5,
                         showHorizontalLines: false,
-                        showTicksText: true
+                        showTicksText: false
                     },
                     showLineLabels: false,
                     legend: {

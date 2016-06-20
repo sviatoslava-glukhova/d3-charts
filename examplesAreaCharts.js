@@ -1,12 +1,12 @@
 (function () {
 
     var areaChartData = [
-            {"value1": 1, "value2": 4, "value3": 2, "date": "20111212"},
-            {"value1": 2, "value2": 2, "value3": 6, "date": "20111213"},
-            {"value1": 4, "value2": 9, "value3": 7, "date": "20111214"},
-            {"value1": 5, "value2": 0, "value3": 1, "date": "20111215"},
-            {"value1": 3, "value2": 5, "value3": 6, "date": "20111216"},
-            {"value1": 1, "value2": 4, "value3": 8, "date": "20111217"}
+            { "value3": 2, "date": "20111212"},
+            { "value3": 6, "date": "20111213"},
+            { "value3": 7, "date": "20111214"},
+            { "value3": 1, "date": "20111215"},
+            { "value3": 6, "date": "20111216"},
+            { "value3": 8, "date": "20111217"}
         ],
         simpleAreaChartOptions = {
             appendTo: '#timeAreaChartSimple',
@@ -19,22 +19,10 @@
                 "#00C4B3"
             ],
             colors: [
-                "rgba(17, 180, 228, 0.2)",
-                "rgba(102, 101, 107, 0.2)",
-                "rgba(0, 196, 179, 0.2)"
+                "#d9f1f2"
             ],
             dateFormat: '%Y%m%d',
-            strokeWidth: 2,
-            legend: {
-                show: false
-            },
-            xAxis: {
-                showVerticalLines: true,
-                showTicksText: false
-            },
-            yAxis: {
-                ticksCount: 0
-            }
+            strokeWidth: 0,
         },
         areaChartWithLegend = {
             appendTo: '#timeAreaChart',
