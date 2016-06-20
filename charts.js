@@ -434,6 +434,71 @@
                     .style('opacity', 1);
             }
         },
+        generatePercentIndicator: function (options, data) {
+            var defaults = {
+                    appendTo: 'body',
+                    defaultColor: "#cacaca",
+                    primaryColor: '#d3f2e1',
+                    dimentions: {
+                        height: 40,
+                        width: null
+                    }
+                },
+                props = $.extend(true, defaults, options);
+
+            var parent = d3.select(props.appendTo),
+                svgWidth = props.dimentions.width ? props.dimentions.width : $(parent[0][0]).width(),
+                svgHeight = props.dimentions.height ? props.dimentions.height : $(parent[0][0]).height(),
+                center = svgWidth/ 2,
+                paddingBottom = 20,
+                barHeight = svgHeight - paddingBottom;
+
+
+            var x = d3.scale.identity()
+                .domain([-100, 100]);
+
+            var svg = parent.append('svg')
+                .attr('width', svgWidth)
+                .attr('height', svgHeight)
+                .datum(data)
+                .append('g');
+
+            svg.append('rect')
+                .attr('width', svgWidth)
+                .attr('height', barHeight)
+                .attr('fill', props.defaultColor)
+                .classed('percent-indicator', true)
+
+            svg.append('rect')
+                .attr('fill', props.primaryColor)
+                .attr('height', barHeight)
+                .attr('width', function (d) {
+                    return center * 0.01 * Math.abs(d) ;
+                })
+                .attr('x', function (d) {
+                    return d > 0 ? center : center * ( 1 - 0.01 * Math.abs(d));
+                });
+
+
+
+            svg.append('text')
+                .text('0')
+                .style('text-anchor', 'middle')
+                .attr('x', center)
+                .attr('y', svgHeight - 5)
+                .classed('tick', true)
+                .attr('fill', '#8e8e8e');
+
+            svg.append('line')
+                .attr('x1', center)
+                .attr('x2', center)
+                .attr('y1', 0)
+                .attr('y2', barHeight)
+                .attr('stroke-width', 2)
+                .attr('stroke', 'white')
+
+
+        },
         generateGroupedBarChart: function (options, data) {
             var defaults = {
                     appendTo: 'body',
@@ -510,7 +575,7 @@
                 return key !== props.xAxis.datePropName;
             });
 
-            data.forEach(function(value) {
+            data.forEach(function (value) {
                 value.date = parseDate(value.date);
             });
 
@@ -564,8 +629,8 @@
                 .transition()
                 .duration(500)
                 .ease('sin')
-                .delay(function(d, i) {
-                    return i* 400;
+                .delay(function (d, i) {
+                    return i * 400;
                 })
                 .attr("y", function (d) {
                     return y(d.value);
@@ -579,7 +644,7 @@
                 var legendContainer = parent.select('svg').append('g')
                     .classed('legend-container', true)
                     .attr("transform", function () {
-                        return "translate(-"+ props.legend.margins.right + "," + props.legend.margins.top + ")";
+                        return "translate(-" + props.legend.margins.right + "," + props.legend.margins.top + ")";
                     });
 
                 var legend = legendContainer.selectAll(".legend")
