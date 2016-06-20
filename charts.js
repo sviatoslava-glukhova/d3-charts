@@ -472,6 +472,10 @@
             svg.append('rect')
                 .attr('fill', props.primaryColor)
                 .attr('height', barHeight)
+                .attr('width', 0)
+                .attr('x', center)
+                .transition()
+                .duration(700)
                 .attr('width', function (d) {
                     return center * 0.01 * Math.abs(d) ;
                 })
