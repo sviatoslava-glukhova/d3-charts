@@ -264,6 +264,7 @@
             var y = d3.scale.linear()
                 .range([height, 0]);
 
+
             var color = d3.scale.ordinal().range(props.colors),
                 strokeColor = d3.scale.ordinal().range(props.strokeColors);
 
@@ -447,6 +448,7 @@
                         ticksCount: 5,
                         dateFormat: '%Y%m%d',
                         datePropName: 'date',
+                        tickFormat: '%b',
                         showVerticalLines: true,
                         showTicksText: true
                     },
@@ -460,7 +462,11 @@
                     legend: {
                         show: true,
                         appendTo: 'body',
-                        keysAliases: null
+                        keysAliases: null,
+                        margins: {
+                            top: 0,
+                            right: 0
+                        }
                     }
                 },
                 props = $.extend(true, defaults, options);
@@ -469,14 +475,13 @@
                 svgWidth = props.dimentions.width ? props.dimentions.width : $(parent[0][0]).width(),
                 svgHeight = props.dimentions.height ? props.dimentions.height : $(parent[0][0]).height(),
                 width = svgWidth - props.margins.left - props.margins.right,
-                height = svgHeight - props.margins.top - props.margins.bottom,
-                yAxis, xAxis;
+                height = svgHeight - props.margins.top - props.margins.bottom;
 
 
             var parseDate = d3.time.format(props.xAxis.dateFormat).parse;
 
             var x0 = d3.scale.ordinal()
-                .rangeRoundBands([0, width], .1);
+                .rangeRoundBands([0, width], props.xAxis.barGroupesSpacing);
 
             var x1 = d3.scale.ordinal();
 
@@ -488,12 +493,12 @@
 
             var xAxis = d3.svg.axis()
                 .scale(x0)
+                .tickFormat(d3.time.format(props.xAxis.tickFormat))
                 .orient("bottom");
 
             var yAxis = d3.svg.axis()
                 .scale(y)
-                .orient("left")
-                .tickFormat(d3.format(".2s"));
+                .orient("left");
 
             var svg = parent.append("svg")
                 .attr("width", svgWidth)
@@ -505,12 +510,15 @@
                 return key !== props.xAxis.datePropName;
             });
 
+            data.forEach(function(value) {
+                value.date = parseDate(value.date);
+            });
+
             data.forEach(function (d) {
                 d.values = xKeys.map(function (name) {
                     return {name: name, value: +d[name]};
                 });
             });
-
 
             x0.domain(data.map(function (d) {
                 return d.date;
@@ -531,10 +539,10 @@
                 .attr("class", "y axis")
                 .call(yAxis);
 
-            var state = svg.selectAll(".state")
+            var state = svg.selectAll(".group")
                 .data(data)
                 .enter().append("g")
-                .attr("class", "state")
+                .attr("class", "group")
                 .attr("transform", function (d) {
                     return "translate(" + x0(d.date) + ",0)";
                 });
@@ -556,6 +564,9 @@
                 .transition()
                 .duration(500)
                 .ease('sin')
+                .delay(function(d, i) {
+                    return i* 400;
+                })
                 .attr("y", function (d) {
                     return y(d.value);
                 })
@@ -565,7 +576,13 @@
 
 
             if (props.legend.show) {
-                var legend = parent.select('svg').selectAll(".legend")
+                var legendContainer = parent.select('svg').append('g')
+                    .classed('legend-container', true)
+                    .attr("transform", function () {
+                        return "translate(-"+ props.legend.margins.right + "," + props.legend.margins.top + ")";
+                    });
+
+                var legend = legendContainer.selectAll(".legend")
                     .data(xKeys.slice().reverse())
                     .enter().append("g")
                     .attr("class", "legend")
