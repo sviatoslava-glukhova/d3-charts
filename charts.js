@@ -502,6 +502,135 @@
 
 
         },
+        generateSimpleBarChart: function (options, data) {
+            var defaults = {
+                    appendTo: 'body',
+                    colors: [],
+                    margins: {top: 0, right: 0, bottom: 0, left: 0},
+                    dimentions: {
+                        width: null,
+                        height: null
+                    },
+                    xAxis: {
+                        showAxis: false,
+                        /*              showAxis: true,
+                         ticksCount: 5,
+                         dateFormat: '%Y%m%d',
+                         datePropName: 'date',
+                         tickFormat: '%b',
+                         showVerticalLines: true,
+                         showTicksText: true*/
+                        propName: 'name'
+                    },
+                    yAxis: {
+                        showAxis: false,
+                        /*
+                         ticksCount: 5,
+                         showHorizontalLines: false,
+                         showTicksText: true*/
+                        propName: 'value',
+                        barSpacing: 0.5
+                    },
+                    showLineLabels: false,
+                    legend: {
+                        show: true,
+                        appendTo: 'body',
+                        keysAliases: null,
+                        margins: {
+                            top: 0,
+                            right: 0
+                        }
+                    }
+                },
+                props = $.extend(true, defaults, options);
+
+            var parent = d3.select(props.appendTo),
+                svgWidth = props.dimentions.width ? props.dimentions.width : $(parent[0][0]).width(),
+                svgHeight = props.dimentions.height ? props.dimentions.height : $(parent[0][0]).height(),
+                width = svgWidth - props.margins.left - props.margins.right,
+                height = svgHeight - props.margins.top - props.margins.bottom;
+
+            var x = d3.scale.ordinal().rangeRoundBands([0, width], props.yAxis.barSpacing);
+
+            var y = d3.scale.linear().range([height, 0]);
+
+            var color = d3.scale.ordinal()
+                .range(props.colors);
+
+            var xAxis = d3.svg.axis()
+                .scale(x)
+                .orient("bottom")
+                //.tickFormat(d3.time.format("%Y-%m"));
+                .ticks(0)
+
+            var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("left")
+                .ticks(10);
+
+            var svg = parent.append("svg")
+                .attr("width", svgWidth)
+                .attr("height", svgHeight)
+                .append("g")
+                .attr("transform",
+                "translate(" + props.margins.left + "," + props.margins.top + ")");
+
+            x.domain(data.map(function (d) {
+                return d[props.xAxis.propName];
+            }));
+            y.domain([0, d3.max(data, function (d) {
+                return d[props.yAxis.propName];
+            })]);
+
+            if (props.xAxis.showAxis) {
+                svg.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(xAxis)
+                    .selectAll("text")
+                    .style("text-anchor", "end")
+                    .attr("dx", "-.8em")
+                    .attr("dy", "-.55em")
+                    .attr("transform", "rotate(-90)");
+            }
+
+            if (props.yAxis.showAxis) {
+                svg.append("g")
+                    .attr("class", "y axis")
+                    .call(yAxis)
+                    .append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 6)
+                    .attr("dy", ".71em")
+                    .style("text-anchor", "end")
+            }
+
+
+            svg.selectAll("bar")
+                .data(data)
+                .enter().append("rect")
+                .style("fill", function(d, i) {
+                    return color(i);
+                })
+                .attr("x", function (d) {
+                    return x(d[props.xAxis.propName]);
+                })
+                .attr("width", x.rangeBand())
+                .attr("y", height)
+                .attr("height", 0)
+                .transition()
+                .duration(300)
+                .delay(function (d, i) {
+                    return i * 100
+                })
+                .attr("y", function (d) {
+                    return y(d[props.yAxis.propName]);
+                })
+                .attr("height", function (d) {
+                    return height - y(d[props.yAxis.propName]);
+                });
+
+        },
         generateGroupedBarChart: function (options, data) {
             var defaults = {
                     appendTo: 'body',

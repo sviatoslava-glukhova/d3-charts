@@ -54,10 +54,9 @@ body {
     font-weight: normal;
 }
 
-#groupedHorizontalBarChart .tick{
+#groupedHorizontalBarChart .tick {
     fill: #8e8e8e;;
 }
-
 
 #groupedHorizontalBarChart .tick line {
     display: none;
