@@ -449,7 +449,7 @@
             var parent = d3.select(props.appendTo),
                 svgWidth = props.dimentions.width ? props.dimentions.width : $(parent[0][0]).width(),
                 svgHeight = props.dimentions.height ? props.dimentions.height : $(parent[0][0]).height(),
-                center = svgWidth/ 2,
+                center = svgWidth / 2,
                 paddingBottom = 20,
                 barHeight = svgHeight - paddingBottom;
 
@@ -477,12 +477,11 @@
                 .transition()
                 .duration(700)
                 .attr('width', function (d) {
-                    return center * 0.01 * Math.abs(d) ;
+                    return center * 0.01 * Math.abs(d);
                 })
                 .attr('x', function (d) {
                     return d > 0 ? center : center * ( 1 - 0.01 * Math.abs(d));
                 });
-
 
 
             svg.append('text')
@@ -674,6 +673,174 @@
                         return props.legend.keysAliases ? props.legend.keysAliases[d] : d;
                     });
 
+            }
+
+        },
+        generateGroupedBarChartHorizontal: function (options, data) {  //TODO yeah I know it's super ugly, do normal horizontal chart
+            var defaults = {
+                    appendTo: 'body',
+                    colors: [],
+                    margins: {top: 0, right: 0, bottom: 0, left: 0},
+                    dimentions: {
+                        width: null,
+                        height: null
+                    },
+                    /* xAxis: {
+                     showAxis: true,
+                     ticksCount: 5,
+                     dateFormat: '%Y%m%d',
+                     datePropName: 'date',
+                     tickFormat: '%b',
+                     showVerticalLines: true,
+                     showTicksText: true
+                     },
+                     yAxis: {
+                     showAxis: true,
+                     ticksCount: 5,
+                     showHorizontalLines: false,
+                     showTicksText: true
+                     },
+                     showLineLabels: false,
+                     legend: {
+                     show: true,
+                     appendTo: 'body',
+                     keysAliases: null,
+                     margins: {
+                     top: 0,
+                     right: 0
+                     }
+                     }*/
+                    labels: [],
+                    barHeight: 10
+                },
+                props = $.extend(true, defaults, options);
+
+            var parent = d3.select(props.appendTo),
+                svgWidth = props.dimentions.width ? props.dimentions.width : $(parent[0][0]).width(),
+                svgHeight = props.dimentions.height ? props.dimentions.height : $(parent[0][0]).height(),
+                width = svgWidth - props.margins.left - props.margins.right,
+                height = svgHeight - props.margins.top - props.margins.bottom;
+
+            var groupHeight = props.barHeight * data.length,
+                gapBetweenGroups = 10;
+
+            var zippedData = [];
+            for (var i = 0; i < props.labels.length; i++) {
+                for (var j = 0; j < data.length; j++) {
+                    zippedData.push(data[j].values[i]);
+                }
+            }
+
+            var color = d3.scale.ordinal()
+                .range(props.colors);
+            var chartHeight = props.barHeight * zippedData.length + gapBetweenGroups * props.labels.length;
+
+            var x = d3.scale.linear()
+                .domain([0, d3.max(zippedData)])
+                .range([0, width]);
+
+            var y = d3.scale.linear()
+                .range([chartHeight + gapBetweenGroups, 0]);
+
+            var yAxis = d3.svg.axis()
+                .scale(y)
+                .tickFormat('')
+                .tickSize(0)
+                .orient("left");
+
+            var xAxis = d3.svg.axis()
+                .scale(x)
+                .tickFormat(formatCurrency)
+                .orient("bottom");
+
+
+            var chart = parent.append('svg').classed("chart", true)
+                .attr("width", svgWidth)
+                .attr("height", svgHeight);
+
+            var bar = chart.selectAll("g")
+                .data(zippedData)
+                .enter().append("g")
+                .attr("transform", function (d, i) {
+                    return "translate(" + props.margins.left + "," + (i * props.barHeight + gapBetweenGroups * (0.5 + Math.floor(i / data.length))) + ")";
+                });
+
+            bar.append("rect")
+                .attr("fill", function (d, i) {
+                    return color(i % data.length);
+                })
+                .attr("class", "bar")
+                .attr("width", 0)
+                .attr("height", props.barHeight - 1)
+                .transition()
+                .duration(500)
+                .delay(function (d, i) {
+                    return i * 200
+                })
+                .attr("width", x);
+
+            bar.append("text")
+                .attr("class", "label")
+                .attr("x", function (d) {
+                    return -10;
+                })
+                .attr("y", groupHeight / 2)
+                .attr("dy", ".35em")
+                .style('text-anchor', 'end')
+                .text(function (d, i) {
+                    if (i % data.length === 0)
+                        return props.labels[Math.floor(i / data.length)];
+                    else
+                        return ""
+                });
+
+            chart.append("g")
+                .attr("class", "y axis")
+                .attr("transform", "translate(" + props.margins.left + ", " + -gapBetweenGroups / 2 + ")")
+                .call(yAxis);
+
+
+            chart.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(" + props.margins.left + ", " + (height - 30) + ")")
+                .call(xAxis);
+
+            var legendRectSize = 18,
+                legendSpacing = 4;
+
+            var legend = chart.selectAll('.legend')
+                .data(data)
+                .enter()
+                .append('g')
+                .attr('transform', function (d, i) {
+                    var height = legendRectSize + legendSpacing;
+                    var offset = -gapBetweenGroups / 2;
+                    var horz = props.margins.left + width + 70 - legendRectSize;
+                    var vert = i * height - offset;
+                    return 'translate(' + horz + ',' + vert + ')';
+                });
+
+            legend.append('rect')
+                .attr('width', legendRectSize)
+                .attr('height', legendRectSize)
+                .style('fill', function (d, i) {
+                    return color(i);
+                })
+                .style('stroke', function (d, i) {
+                    return color(i);
+                });
+
+            legend.append('text')
+                .attr('class', 'legend')
+                .attr('x', legendRectSize + legendSpacing)
+                .attr('y', legendRectSize - legendSpacing)
+                .text(function (d) {
+                    return d.label;
+                });
+
+
+            function formatCurrency(d) {
+                return '$' + d + 'm';
             }
 
         }

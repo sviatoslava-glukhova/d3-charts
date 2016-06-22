@@ -23,24 +23,42 @@ body {
     stroke-dasharray: 2, 2;
 }
 
-
-
 #groupedBarChart {
     background-color: #fafafa;
 }
+
 #groupedBarChart .tick line,
 #groupedBarChart .x .domain,
 #groupedBarChart .y .domain {
     display: none;
 }
 
-#groupedBarChart .tick text{
+#groupedBarChart .tick text {
     fill: #8e8e8e;
     text-transform: uppercase;
 }
 
-#groupedBarChart .legend text{
+#groupedBarChart .legend text {
     fill: #424242;
     text-transform: uppercase;
     font-weight: bold;
+}
+
+#groupedHorizontalBarChart .domain {
+    display: none;
+}
+
+#groupedHorizontalBarChart .label {
+    font-size: 14px;
+    fill: #8e8e8e;
+    font-weight: normal;
+}
+
+#groupedHorizontalBarChart .tick{
+    fill: #8e8e8e;;
+}
+
+
+#groupedHorizontalBarChart .tick line {
+    display: none;
 }
