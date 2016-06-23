@@ -606,14 +606,18 @@
                 .attr("transform",
                 "translate(" + props.margins.left + "," + props.margins.top + ")");
 
+            var datamax = d3.max(data, function (d) {
+                    return d[props.yAxis.propName];
+                }),
+                datamin = d3.min(data, function (d) {
+                    return d[props.yAxis.propName];
+                });
+
             x.domain(data.map(function (d) {
                 return d[props.xAxis.propName];
             }));
-            y.domain([props.minValueAsZero ? d3.min(data, function (d) {
-                return d[props.yAxis.propName];
-            }) : 0, d3.max(data, function (d) {
-                return d[props.yAxis.propName];
-            })]);
+
+            y.domain([props.minValueAsZero ? datamin - (datamax - datamin) * 0.1 : 0, datamax]);
 
             if (props.xAxis.showAxis) {
                 svg.append("g")
