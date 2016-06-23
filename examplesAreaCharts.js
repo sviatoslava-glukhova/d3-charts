@@ -22,7 +22,6 @@
                 height: 300,
             },
             chartBottomPadding: 200,
-            paddingFillColor: "#d9f1f2",
             colors: [
                 "#d9f1f2"
             ],

@@ -383,7 +383,9 @@
 
             if (props.chartBottomPadding) {
                 chart.append('rect')
-                    .attr('fill', props.paddingFillColor)
+                    .attr('fill', function () {
+                        return props.paddingFillColor ? props.paddingFillColor : props.colors[0];
+                    })
                     .attr('y', height)
                     .attr('height', 0)
                     .attr('width', width)
