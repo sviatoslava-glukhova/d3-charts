@@ -1,23 +1,28 @@
 (function () {
 
     var areaChartData = [
-            { "value3": 2, "date": "20111212"},
-            { "value3": 6, "date": "20111213"},
-            { "value3": 7, "date": "20111214"},
-            { "value3": 1, "date": "20111215"},
-            { "value3": 6, "date": "20111216"},
-            { "value3": 8, "date": "20111217"}
+            {"value3": 2, "date": "20111212"},
+            {"value3": 6, "date": "20111213"},
+            {"value3": 7, "date": "20111214"},
+            {"value3": 1, "date": "20111215"},
+            {"value3": 6, "date": "20111216"},
+            {"value3": 8, "date": "20111217"}
         ],
+        areaChartData2 = [
+                {"value1": 7, "value3": 2, "date": "20111212"},
+                {"value1": 6, "value3": 6, "date": "20111213"},
+                {"value1": 5, "value3": 7, "date": "20111214"},
+                {"value1": 1, "value3": 1, "date": "20111215"},
+                {"value1": 2, "value3": 6, "date": "20111216"},
+                {"value1": 1, "value3": 8, "date": "20111217"}
+            ],
         simpleAreaChartOptions = {
             appendTo: '#timeAreaChartSimple',
             dimentions: {
-                height: 200,
+                height: 300,
             },
-            strokeColors: [
-                "#11b4e4",
-                "#66656B",
-                "#00C4B3"
-            ],
+            chartBottomPadding: 200,
+            paddingFillColor: "#d9f1f2",
             colors: [
                 "#d9f1f2"
             ],
@@ -56,7 +61,7 @@
         };
 
     Charts.generateAreaChart(simpleAreaChartOptions, getChartsData());
-    Charts.generateAreaChart(areaChartWithLegend, getChartsData());
+    Charts.generateAreaChart(areaChartWithLegend, areaChartData2);
 
 
     function getChartsData() {

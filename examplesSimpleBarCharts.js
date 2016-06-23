@@ -78,6 +78,7 @@
             dimentions: {
                 height: 250,
             },
+            minValueAsZero: true,
             colors: [
                 "#48AEB4",
                 "#3B6D8F"

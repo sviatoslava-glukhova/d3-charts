@@ -86,8 +86,6 @@
                     return key !== props.xAxis.datePropName;
                 });
 
-            console.log(props.appendTo);
-
             var svg = parent.append("svg")
                 .attr("width", svgWidth)
                 .attr("height", svgHeight)
@@ -218,9 +216,11 @@
                     appendTo: 'body',
                     colors: [],
                     strokeColors: [],
+                    paddingFillColor: '',
                     strokeWidth: 1,
                     interpolate: 'none',
                     margins: {top: 0, right: 0, bottom: 0, left: 0},
+                    chartBottomPadding: 0,
                     dimentions: {
                         width: null,
                         height: null
@@ -241,7 +241,7 @@
                     },
                     showLineLabels: false,
                     legend: {
-                        show: true,
+                        show: false,
                         appendTo: 'body',
                         keysAliases: null
                     }
@@ -253,7 +253,9 @@
                 svgHeight = props.dimentions.height ? props.dimentions.height : $(parent[0][0]).height(),
                 width = svgWidth - props.margins.left - props.margins.right,
                 height = svgHeight - props.margins.top - props.margins.bottom,
-                yAxis, xAxis;
+                chartHeight = height - props.chartBottomPadding,
+                animationDuration = 700,
+                paddingAnimationDuration = props.chartBottomPadding / height * animationDuration;
 
 
             var parseDate = d3.time.format(props.xAxis.dateFormat).parse;
@@ -262,7 +264,7 @@
                 .range([0, width]);
 
             var y = d3.scale.linear()
-                .range([height, 0]);
+                .range([chartHeight, 0]);
 
 
             var color = d3.scale.ordinal().range(props.colors),
@@ -275,7 +277,7 @@
                 .orient("bottom");
 
             if (props.xAxis.showVerticalLines) {
-                xAxis.tickSize(-height);
+                xAxis.tickSize(-chartHeight);
             }
 
             var yAxis = d3.svg.axis()
@@ -297,7 +299,7 @@
                     return y(d.val);
                 })
                 .y0(function () {
-                    return height;
+                    return chartHeight;
                 });
 
             var keys = d3.keys(data[0]),
@@ -305,7 +307,6 @@
                     return key !== props.xAxis.datePropName;
                 });
 
-            console.log(props.appendTo);
 
             var svg = parent.append("svg")
                 .attr("width", svgWidth)
@@ -380,12 +381,21 @@
                 .enter().append("g")
                 .attr("class", "chart");
 
+            if (props.chartBottomPadding) {
+                chart.append('rect')
+                    .attr('fill', props.paddingFillColor)
+                    .attr('y', height)
+                    .attr('height', 0)
+                    .attr('width', width)
+                    .transition()
+                    .duration(paddingAnimationDuration)
+                    .attr('y', chartHeight)
+                    .attr('height', props.chartBottomPadding);
+            }
+
             chart.append("path")
                 .attr("class", "line")
-                .style('opacity', 0)
-                .attr("d", function (d) {
-                    return area(d.values);
-                })
+                .attr("d", "M0,0")
                 .style("stroke", function (d) {
                     return strokeColor(d.name);
                 })
@@ -394,11 +404,9 @@
                     return color(d.name)
                 })
                 .transition()
-                .duration(300)
-                .delay(function (d, i) {
-                    return 200 * i
-                })
-                .style('opacity', 1);
+                .delay(paddingAnimationDuration - 100)
+                .duration(animationDuration - paddingAnimationDuration + 200)
+                .attrTween("d", tween)
 
             if (props.showLineLabels) {
                 chart.append("text")
@@ -430,8 +438,28 @@
 
                 container.html([template])
                     .transition()
-                    .duration(500)
+                    .duration(300)
                     .style('opacity', 1);
+            }
+
+            function tween(d, i, a) {
+                var absMax = d3.max(d.values, function (value) {
+                        return value.val;
+                    }),
+                    scale = d3.scale.linear()
+                        .domain([0, absMax]);
+
+                return function (t) {
+                    var data = [];
+                    scale.range([0, absMax * t]);
+
+                    d.values.forEach(function (value) {
+                        data.push({val: scale(value.val), date: value.date}); //TODO REMOVE
+                    });
+
+
+                    return area(data);
+                }
             }
         },
         generatePercentIndicator: function (options, data) {
@@ -524,6 +552,7 @@
                     },
                     yAxis: {
                         showAxis: false,
+                        minValueAsZero: false,
                         /*
                          ticksCount: 5,
                          showHorizontalLines: false,
@@ -533,7 +562,7 @@
                     },
                     showLineLabels: false,
                     legend: {
-                        show: true,
+                        show: false,
                         appendTo: 'body',
                         keysAliases: null,
                         margins: {
@@ -578,7 +607,9 @@
             x.domain(data.map(function (d) {
                 return d[props.xAxis.propName];
             }));
-            y.domain([0, d3.max(data, function (d) {
+            y.domain([props.minValueAsZero ? d3.min(data, function (d) {
+                return d[props.yAxis.propName];
+            }) : 0, d3.max(data, function (d) {
                 return d[props.yAxis.propName];
             })]);
 
@@ -609,7 +640,7 @@
             svg.selectAll("bar")
                 .data(data)
                 .enter().append("rect")
-                .style("fill", function(d, i) {
+                .style("fill", function (d, i) {
                     return color(i);
                 })
                 .attr("x", function (d) {
@@ -657,7 +688,7 @@
                     },
                     showLineLabels: false,
                     legend: {
-                        show: true,
+                        show: false,
                         appendTo: 'body',
                         keysAliases: null,
                         margins: {
