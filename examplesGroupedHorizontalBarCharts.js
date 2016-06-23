@@ -3,11 +3,11 @@
     var chartData = [
             {
                 label: '2014',
-                values: [17, 10, 5]
+                values: [17000000, 10000000, 5000000]
             },
             {
                 label: '2015',
-                values: [9, 12, 3]
+                values: [9000000, 12000000, 3000000]
             }],
         chartOptions = {
             appendTo: '#groupedHorizontalBarChart',
@@ -24,6 +24,9 @@
             },
             legend:{
                 show: true
+            },
+            formatTickFunction: function (d) {
+                return '$' + d / 1000000 + 'm';
             },
             barHeight: 30,
             labels: ['OVERHEAD', 'SUPPLIES', 'CLINICAL']

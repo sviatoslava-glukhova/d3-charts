@@ -872,6 +872,7 @@
                      right: 0
                      }
                      }*/
+                    formatTickFunction: null,
                     labels: [],
                     barHeight: 10
                 },
@@ -912,8 +913,11 @@
 
             var xAxis = d3.svg.axis()
                 .scale(x)
-                .tickFormat(formatCurrency)
                 .orient("bottom");
+
+            if (props.formatTickFunction) {
+                xAxis.tickFormat(props.formatTickFunction)
+            }
 
 
             var chart = parent.append('svg').classed("chart", true)
@@ -999,11 +1003,6 @@
                 .text(function (d) {
                     return d.label;
                 });
-
-
-            function formatCurrency(d) {
-                return '$' + d + 'm';
-            }
 
         }
     };
