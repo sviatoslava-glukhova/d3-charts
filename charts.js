@@ -231,13 +231,17 @@
                         dateFormat: '%Y%m%d',
                         datePropName: 'date',
                         showVerticalLines: false,
-                        showTicksText: false
+                        showTicksText: false,
+                        tickFormat: '%d'
                     },
                     yAxis: {
                         showAxis: false,
                         ticksCount: 5,
                         showHorizontalLines: false,
-                        showTicksText: false
+                        showTicksText: false,
+                        showTicksInside: false,
+                        ticksLeftPadding: 10,
+                        tickFormat: null
                     },
                     showLineLabels: false,
                     legend: {
@@ -269,6 +273,7 @@
             var xAxis = d3.svg.axis()
                 .scale(x)
                 .ticks(props.xAxis.ticksCount)
+                .tickFormat(d3.time.format(props.xAxis.tickFormat))
                 .outerTickSize('0')
                 .orient("bottom");
 
@@ -281,6 +286,10 @@
                 .ticks(props.yAxis.ticksCount)
                 .outerTickSize('0')
                 .orient("left");
+
+            if (props.yAxis.tickFormat) {
+                yAxis.tickFormat(props.yAxis.tickFormat);
+            }
 
             if (props.yAxis.showHorizontalLines) {
                 yAxis.tickSize(-width);
@@ -303,13 +312,11 @@
                     return key !== props.xAxis.datePropName;
                 });
 
-
             var svg = parent.append("svg")
                 .attr("width", svgWidth)
                 .attr("height", svgHeight)
                 .append("g")
                 .attr("transform", "translate(" + props.margins.left + "," + props.margins.top + ")");
-
 
             color.domain(xKeys);
 
@@ -349,7 +356,6 @@
                     .attr("transform", "translate(0," + height + ")")
                     .call(xAxis);
 
-
                 if (!props.xAxis.showTicksText) {
                     xAxis.selectAll('.tick text').remove();
                 }
@@ -358,13 +364,13 @@
             if (props.yAxis.showAxis) {
                 yAxis = svg.append("g")
                     .attr("class", "y axis")
-                    .call(yAxis)
-                    .append("text")
-                    .attr("transform", "rotate(-90)")
-                    .attr("y", 6)
-                    .attr("dy", ".71em")
-                    .style("text-anchor", "end");
+                    .call(yAxis);
 
+                if (props.yAxis.showTicksInside) {
+                    yAxis.selectAll('.tick text')
+                        .style('text-anchor', 'start')
+                        .attr('x', props.yAxis.ticksLeftPadding)
+                }
 
                 if (!props.yAxis.showTicksText) {
                     yAxis.selectAll('.tick text').remove();
@@ -376,20 +382,6 @@
                 .data(charts)
                 .enter().append("g")
                 .attr("class", "chart");
-
-            if (props.chartBottomPadding) {
-               /* chart.append('rect')
-                    .attr('fill', function () {
-                        return props.paddingFillColor ? props.paddingFillColor : props.colors[0];
-                    })
-                    .attr('y', height)
-                    .attr('height', 0)
-                    .attr('width', width)
-                    .transition()
-                    .duration(paddingAnimationDuration)
-                    .attr('y', chartHeight)
-                    .attr('height', props.chartBottomPadding);*/
-            }
 
             chart.append("path")
                 .attr("class", "line")
@@ -1013,6 +1005,15 @@
                         width: null,
                         height: null
                     },
+                    yAxis: {
+                        showAxis: false,
+                        ticksCount: 5,
+                        showHorizontalLines: false,
+                        showTicksText: false,
+                        showTicksInside: false,
+                        ticksLeftPadding: 10,
+                        tickFormat: null
+                    },
                     labels: [],
                     pyramidBaseWidth: [50]
                 },
@@ -1048,6 +1049,15 @@
                 .outerTickSize('0')
                 .orient("bottom");
 
+            var yAxis = d3.svg.axis()
+                .scale(y)
+                .ticks(props.yAxis.ticksCount)
+                .outerTickSize('0')
+                .orient("left");
+
+            if (props.yAxis.tickFormat) {
+                yAxis.tickFormat(props.yAxis.tickFormat);
+            }
 
             function pyramid(data, i, base) {
                 var offset = base !== undefined ? base : pyramidBase(data.label),
@@ -1062,13 +1072,6 @@
                 .attr("height", svgHeight)
                 .append("g")
                 .attr("transform", "translate(" + props.margins.left + "," + props.margins.top + ")");
-
-
-            //   color.domain(xKeys);
-
-            /*  data.forEach(function (d) {
-             d.date = parseDate(d[props.xAxis.datePropName]);
-             });*/
 
             var dataPoints = [],
                 seriesCount = data[0].values.length,
@@ -1100,6 +1103,22 @@
 
             xAxis.selectAll("text")
                 .style("text-anchor", "start");
+
+            if (props.yAxis.showAxis) {
+                yAxis = svg.append("g")
+                    .attr("class", "y axis")
+                    .call(yAxis);
+
+                if (props.yAxis.showTicksInside) {
+                    yAxis.selectAll('.tick text')
+                        .style('text-anchor', 'start')
+                        .attr('x', props.yAxis.ticksLeftPadding)
+                }
+
+                if (!props.yAxis.showTicksText) {
+                    yAxis.selectAll('.tick text').remove();
+                }
+            }
 
             var chart = svg.selectAll(".pyramid")
                 .data(dataPoints)

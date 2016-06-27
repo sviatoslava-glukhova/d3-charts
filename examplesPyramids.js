@@ -19,7 +19,15 @@
             ],
             margins: {bottom: 30},
             pyramidBaseWidth: [150, 70],
-            labels: ['OVERHEAD', 'SUPPLIES', 'CLINICAL']
+            labels: ['OVERHEAD', 'SUPPLIES', 'CLINICAL'],
+            yAxis: {
+                showAxis: true,
+                ticksCount: 10,
+                showTicksInside: true,
+                ticksLeftPadding: 10,
+                showTicksText: true,
+                tickFormat: function(d) {return d/10000;}
+            }
         };
 
     Charts.generatePyramids(simpleAreaChartOptions, getChartsData());

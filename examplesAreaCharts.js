@@ -19,20 +19,36 @@
         simpleAreaChartOptions = {
             appendTo: '#timeAreaChartSimple',
             dimentions: {
-                height: 300,
+                height: 300
             },
-            chartBottomPadding: 200,
+           chartBottomPadding: 60,
             colors: [
                 "#d9f1f2"
             ],
-            dateFormat: '%Y%m%d',
             strokeWidth: 0,
+            margins: {
+                bottom: 50
+            },
+            xAxis: {
+                showAxis: true,
+                showTicksText: true,
+                dateFormat: '%Y%m%d',
+                tickFormat: '%d %B'
+            },
+            yAxis: {
+                showAxis: true,
+                ticksCount: 10,
+                showTicksInside: true,
+                ticksLeftPadding: 10,
+                showTicksText: true,
+                tickFormat: function(d) {return d;}
+            }
         },
         areaChartWithLegend = {
             appendTo: '#timeAreaChart',
             interpolate: 'cardinal',
             dimentions: {
-                height: 200,
+                height: 200
             },
             colors: [
                 "rgba(17, 180, 228, 0.3)",

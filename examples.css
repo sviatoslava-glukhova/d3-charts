@@ -23,6 +23,10 @@ body {
     stroke-dasharray: 2, 2;
 }
 
+#timeAreaChartSimple y.axis .tick text{
+    fill: black;
+}
+
 #groupedBarChart {
     background-color: #fafafa;
 }
@@ -69,3 +73,4 @@ body {
 #pyramids .x.axis .tick line{
     display: none;
 }
+
