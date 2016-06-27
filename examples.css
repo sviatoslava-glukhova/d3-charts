@@ -61,3 +61,11 @@ body {
 #groupedHorizontalBarChart .tick line {
     display: none;
 }
+
+#pyramids .x.axis .tick {
+    fill: #FFF;
+}
+
+#pyramids .x.axis .tick line{
+    display: none;
+}

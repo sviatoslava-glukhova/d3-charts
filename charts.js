@@ -1008,6 +1008,130 @@
                     return d.label;
                 });
 
+        },
+        generatePyramids: function (options, data) {
+            var defaults = {
+                    appendTo: 'body',
+                    colors: [],
+                    margins: {top: 0, right: 0, bottom: 0, left: 0},
+                    dimentions: {
+                        width: null,
+                        height: null
+                    },
+                    labels: [],
+                    pyramidBaseWidth: [50]
+                },
+                props = $.extend(true, defaults, options);
+
+            var parent = d3.select(props.appendTo),
+                svgWidth = props.dimentions.width ? props.dimentions.width : $(parent[0][0]).width(),
+                svgHeight = props.dimentions.height ? props.dimentions.height : $(parent[0][0]).height(),
+                width = svgWidth - props.margins.left - props.margins.right,
+                height = svgHeight - props.margins.top - props.margins.bottom;
+
+            var x = d3.scale.linear();
+
+            var y = d3.scale.linear()
+                .range([height, 0]);
+
+            var labels = d3.map(data, function (value) {
+                return value.label;
+            });
+
+            var color = d3.scale.ordinal().range(props.colors)
+                .domain(labels);
+
+            var pyramidBase = d3.scale.ordinal().range(props.pyramidBaseWidth)
+                .domain(labels);
+
+            var xAxis = d3.svg.axis()
+                .scale(x)
+                .ticks(data.length)
+                .tickFormat(function (d, i) {
+                    return props.labels[i];
+                })
+                .outerTickSize('0')
+                .orient("bottom");
+
+
+            function pyramid(data, i, base) {
+                var offset = base !== undefined ? base : pyramidBase(data.label),
+                    pointX = x(i),
+                    pointY = y(data.value);
+
+                return pointX - offset + ' ' + height + ', ' + pointX + ' ' + pointY + ', ' + (pointX + offset) + ' ' + height;
+            }
+
+            var svg = parent.append("svg")
+                .attr("width", svgWidth)
+                .attr("height", svgHeight)
+                .append("g")
+                .attr("transform", "translate(" + props.margins.left + "," + props.margins.top + ")");
+
+
+            //   color.domain(xKeys);
+
+            /*  data.forEach(function (d) {
+             d.date = parseDate(d[props.xAxis.datePropName]);
+             });*/
+
+            var dataPoints = [],
+                seriesCount = data[0].values.length,
+                length = data.length;
+
+            for (var i = 0; i < seriesCount; i++) {
+                for (var j = 0; j < length; j++) {
+                    dataPoints.push({
+                        series: props.labels[i], //not sure will need
+                        label: data[j].label,
+                        value: data[j].values[i]
+                    });
+                }
+            }
+
+            x.range([pyramidBase(dataPoints[0].label), width - pyramidBase(dataPoints[dataPoints.length - 1].label)])
+                .domain([0, dataPoints.length - 1]);
+
+            y.domain([
+                0, d3.max(dataPoints, function (d) {
+                    return d.value
+                })]);
+
+
+            xAxis = svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
+
+            xAxis.selectAll("text")
+                .style("text-anchor", "start");
+
+            var chart = svg.selectAll(".pyramid")
+                .data(dataPoints)
+                .enter().append("g")
+                .attr("class", "pyramid");
+
+            chart.append("polygon")
+                //  .attr("class", "line")
+                //  .style('opacity', 0)
+                .attr('points', function (d, i) {
+                    var data = $.extend({}, d);
+                    data.value = 0;
+                    //   console.log(pyramid(data, i));
+                    return pyramid(data, i, 0);
+                })
+                .style('fill', function (d) {
+                    return color(d.label);
+                })
+                .transition()
+                .duration(500)
+                .delay(function (d, i) {
+                    return i * 100;
+                })
+                .attr("points", function (d, i) {
+                    return pyramid(d, i);
+                });
+
         }
     };
 
