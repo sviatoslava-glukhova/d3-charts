@@ -253,10 +253,7 @@
                 svgHeight = props.dimentions.height ? props.dimentions.height : $(parent[0][0]).height(),
                 width = svgWidth - props.margins.left - props.margins.right,
                 height = svgHeight - props.margins.top - props.margins.bottom,
-                chartHeight = height - props.chartBottomPadding,
-                animationDuration = 700,
-                paddingAnimationDuration = props.chartBottomPadding / height * animationDuration;
-
+                animationDuration = 700;
 
             var parseDate = d3.time.format(props.xAxis.dateFormat).parse;
 
@@ -264,8 +261,7 @@
                 .range([0, width]);
 
             var y = d3.scale.linear()
-                .range([chartHeight, 0]);
-
+                .range([height - props.chartBottomPadding, 0]);
 
             var color = d3.scale.ordinal().range(props.colors),
                 strokeColor = d3.scale.ordinal().range(props.strokeColors);
@@ -277,7 +273,7 @@
                 .orient("bottom");
 
             if (props.xAxis.showVerticalLines) {
-                xAxis.tickSize(-chartHeight);
+                xAxis.tickSize(-height);
             }
 
             var yAxis = d3.svg.axis()
@@ -299,7 +295,7 @@
                     return y(d.val);
                 })
                 .y0(function () {
-                    return chartHeight;
+                    return height;
                 });
 
             var keys = d3.keys(data[0]),
@@ -382,7 +378,7 @@
                 .attr("class", "chart");
 
             if (props.chartBottomPadding) {
-                chart.append('rect')
+               /* chart.append('rect')
                     .attr('fill', function () {
                         return props.paddingFillColor ? props.paddingFillColor : props.colors[0];
                     })
@@ -392,7 +388,7 @@
                     .transition()
                     .duration(paddingAnimationDuration)
                     .attr('y', chartHeight)
-                    .attr('height', props.chartBottomPadding);
+                    .attr('height', props.chartBottomPadding);*/
             }
 
             chart.append("path")
@@ -406,8 +402,7 @@
                     return color(d.name)
                 })
                 .transition()
-                .delay(paddingAnimationDuration - 100)
-                .duration(animationDuration - paddingAnimationDuration + 200)
+                .duration(animationDuration)
                 .attrTween("d", tween)
 
             if (props.showLineLabels) {
