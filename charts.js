@@ -397,7 +397,8 @@
                 var bisectDate = d3.bisector(function (d) {
                         return d.date;
                     }).left,
-                    hoverPoint, tooltip;
+                    hoverPoint, tooltip, initPointX, initPointY,
+                    tooltipContainer, tooltip, dateFormat = d3.time.format(props.onHover.tooltipDateFormat);
 
                 hoverCharts.append("path")
                     .attr("class", "hoverLine")
@@ -414,36 +415,129 @@
                             i = bisectDate(d.values, x0),
                             d0 = d.values[i - 1],
                             d1 = d.values[i],
-                            pointData = x0 - d0.date > d1.date - x0 ? d1 : d0,
+                            cursorOnLeft = x0 - d0.date > d1.date - x0,
+                            pointData = cursorOnLeft ? d1 : d0,
                             pointX = x(pointData.date),
-                            pointY =  y(pointData.val);
+                            pointY = y(pointData.val);
 
-                        if (props.onHover.showTooltip) {
-                            tooltip = svg.append('g')
-                                .classed('tooltip', true)
-                                .attr('transform', 'translate('+ pointX +')')
-                                .append('rect')
-                                .attr({height: 100, width: 100})
+                        if (initPointX !== pointX || initPointY !== pointY) {
+                            initPointX = pointX;
+                            initPointY = pointY;
+
+                            if (props.onHover.showTooltip) {
+                                var tooltipHeight = 100,
+                                    tooltipWidth = props.onHover.tooltipWidth;
+
+                                if (!tooltip) {
+                                    /*  tooltip = svg.append('g').classed('chartTooltip', true)
+                                     .append('g')
+                                     .classed('chartTooltip', true)
+                                     .style('opacity', 0)
+                                     .attr('transform', 'translate(' + (cursorOnLeft ? pointX + 50 : pointX - tooltipWidth - 50) + ',' + (pointY - (tooltipHeight / 2)) + ')')
+                                     */
+                                    /*                              tooltip.append('rect')
+                                     .style('fill', 'white')
+                                     .attr({height: tooltipHeight, width: tooltipWidth});
+
+                                     */
+                                    tooltipContainer = svg.append('foreignObject')
+                                        .attr({
+                                            'width': tooltipWidth
+                                        })
+
+                                    tooltip = tooltipContainer.append('xhtml:div')
+                                        .append('div')
+                                        .attr({
+                                            'class': 'chartTooltip'
+                                        });
+
+
+                                    // title = tooltip.append('text')
+                                    /*            .classed('title', true)
+                                     .attr({
+                                     'transform': 'translate(20,20)',
+                                     "text-anchor": 'start'
+                                     });
+
+                                     value = tooltip.append('text')
+                                     .classed('value', true)
+                                     .attr({
+                                     'transform': 'translate(20,40)',
+                                     "text-anchor": 'start'
+                                     });
+
+                                     date = tooltip.append('text')
+                                     .classed('date', true)
+                                     .attr({
+                                     'transform': 'translate(20,60)',
+                                     "text-anchor": 'start'
+                                     })*/
+                                }
+
+
+                                /*                         title.text(function () {
+                                 return props.onHover.labels ? props.onHover.labels[d.name] : d.name;
+                                 });
+
+                                 value.text(function () {
+                                 return pointData.val;
+                                 });
+
+                                 date.text(function () {
+                                 return dateFormat(pointData.date);
+                                 });*/
+
+                                tooltipContainer.attr({
+                                    'x': cursorOnLeft ? pointX + 50 : pointX - tooltipWidth - 50,
+                                    'y': pointY - (tooltipHeight / 2)
+                                })
+                                  //  .style('opacity', 0);
+
+                                tooltip.html('<div class="tooltipTitle">' + (props.onHover.labels ? props.onHover.labels[d.name] : d.name) + '</div>'
+                                    + '<div class="value">(' + pointData.val + ')</div>'
+                                    + '<div class="date">' + dateFormat(pointData.date) + '</div>'
+                                );
+
+                                tooltip//.attr('transform', 'translate(' + (cursorOnLeft ? pointX + 50 : pointX - tooltipWidth - 50) + ',' + (pointY - (tooltipHeight / 2)) + ')')
+                                    // .style('opacity', 0)
+                                    .transition()
+                                    .duration(props.onHover.tooltipTransitionsDuration)
+                                    .delay(props.onHover.pointMovementDuration)
+                                    .style('opacity', 1)
+
+                            }
+
+                            if (!hoverPoint || !hoverPoint.length) {
+                                hoverPoint = svg.append('circle')
+                                    .classed('hoverPoint', true)
+                                    .attr('r', props.onHover.pointDiameter)
+                                    .attr('fill', 'white')
+                                    .attr('stroke-width', props.onHover.pointBorder)
+                                    .attr('stroke', 'red')
+                                    .attr('cx', pointX)
+                                    .attr('cy', pointY)
+                                    .style('opacity', 1);
+                            }
+
+                            hoverPoint.transition()
+                                .duration(props.onHover.pointMovementDuration)
+                                .style('opacity', 1)
+                                .attr('cx', pointX)
+                                .attr('cy', pointY);
+
+                            //  focus.attr("transform", "translate(" + x(d.date) + "," + y(d.close) + ")");
+                            // focus.select("text").text(formatCurrency(d.close));
                         }
-
-                        if (!hoverPoint || !hoverPoint.length) {
-                            hoverPoint = svg.append('circle')
-                                .classed('hoverPoint', true)
-                        }
-                        hoverPoint.attr('cx', pointX)
-                            .attr('cy', pointY)
-                            .attr('r', props.onHover.pointDiameter)
-                            .attr('fill', 'white')
-                            .attr('stroke-width', props.onHover.pointBorder)
-                            .attr('stroke', 'red');
-
-                        //  focus.attr("transform", "translate(" + x(d.date) + "," + y(d.close) + ")");
-                        // focus.select("text").text(formatCurrency(d.close));
 
                     })
                     .on('mouseleave', function () {
-                        hoverPoint.remove();
-                        hoverPoint = null;
+                        /*   hoverPoint.transition()
+                         .duration(props.onHover.transitionLength)
+                         .style('opacity', 0);
+
+                         tooltip.transition()
+                         .duration(props.onHover.transitionLength)
+                         .style('opacity', 0);*/
                     });
             }
 
@@ -1222,6 +1316,36 @@
 
         }
     };
+
+    function debounceD3Event(func, wait, immediate) {
+        var timeout;
+        return function () {
+            var context = this;
+            var args = arguments;
+            var evt = d3.event;
+
+            var later = function () {
+                timeout = null;
+                if (!immediate) {
+                    var tmpEvent = d3.event;
+                    d3.event = evt;
+                    func.apply(context, args);
+                    d3.event = tmpEvent;
+                }
+            };
+
+            var callNow = immediate && !timeout;
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+            if (callNow) {
+                var tmpEvent = d3.event;
+                d3.event = evt;
+                func.apply(context, args);
+                d3.event = tmpEvent;
+            }
+
+        };
+    }
 
     window.Charts = charts;
 }())

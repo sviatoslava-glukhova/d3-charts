@@ -9,19 +9,19 @@
             {"value3": 8, "value1": 10, "date": "20111217"}
         ],
         areaChartData2 = [
-                {"value1": 7, "value3": 2, "date": "20111212"},
-                {"value1": 6, "value3": 6, "date": "20111213"},
-                {"value1": 5, "value3": 7, "date": "20111214"},
-                {"value1": 1, "value3": 1, "date": "20111215"},
-                {"value1": 2, "value3": 6, "date": "20111216"},
-                {"value1": 1, "value3": 8, "date": "20111217"}
-            ],
+            {"value1": 7, "value3": 2, "date": "20111212"},
+            {"value1": 6, "value3": 6, "date": "20111213"},
+            {"value1": 5, "value3": 7, "date": "20111214"},
+            {"value1": 1, "value3": 1, "date": "20111215"},
+            {"value1": 2, "value3": 6, "date": "20111216"},
+            {"value1": 1, "value3": 8, "date": "20111217"}
+        ],
         simpleAreaChartOptions = {
             appendTo: '#timeAreaChartSimple',
             dimentions: {
                 height: 400
             },
-           chartBottomPadding: 200,
+            chartBottomPadding: 200,
             colors: [
                 "rgba(17, 180, 228, 0.3)",
                 "rgba(102, 101, 107, 0.8)"
@@ -42,14 +42,25 @@
                 showTicksInside: true,
                 ticksLeftPadding: 10,
                 showTicksText: true,
-                tickFormat: function(d) {return d;}
+                tickFormat: function (d) {
+                    return d;
+                }
             },
             onHover: {
                 showPoints: true,
                 showTooltip: true,
-                hoverLineWidth: 20,
-                pointDiameter: 5,
-                pointBorder: 2
+                hoverLineWidth: 40,
+                pointDiameter: 7,
+                pointBorder: 2,
+                pointMovementDuration: 100,
+                tooltipTransitionsDuration: 500,
+                labels: {
+                    value3: "Administrative services",
+                    value1: "Sirgical Supplies"
+
+                },
+                tooltipWidth: 200,
+                tooltipDateFormat: '%d %B'
             }
         },
         areaChartWithLegend = {
