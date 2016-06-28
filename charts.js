@@ -456,8 +456,8 @@
 
                                 //  .style('opacity', 0);
 
-                                var growth = pointData.val - d.values[pointi - 1].val,
-                                    growthString = growth > 0 ? '<span class="growUp">+' + growth + '</span>' : '<span class="growDown">' + growth + '</span>';
+                                var growth = pointi === 0 ? null: pointData.val - d.values[pointi - 1].val,
+                                    growthString = growth === null ? '':  growth > 0 ? '<span class="growUp">+' + growth + '</span>' : '<span class="growDown">' + growth + '</span>';
 
                                 tooltip.html('<div class="tooltipTitle">' + (props.onHover.labels ? props.onHover.labels[d.name] : d.name) + '</div>'
                                     + '<div class="description">Labor had the greatest PC in this period</div>'
@@ -468,11 +468,14 @@
                                 var h = $(tooltip.node()).outerHeight();
 
                                 tooltipContainer.attr({
-                                    'x': cursorOnLeft ? pointX + tooltipPadding : pointX - tooltipWidth - tooltipPadding,
+                                    'x': width/2 - d3.mouse(this)[0] > 0 ? pointX + tooltipPadding : pointX - tooltipWidth - tooltipPadding,
                                     'y': pointY - (h / 2)
                                 })
 
-                                border.attr({'height': h - props.onHover.borderWidth, 'y': pointY - h / 2 + props.onHover.borderWidth})
+                                border.attr({
+                                    'height': h - props.onHover.borderWidth,
+                                    'y': pointY - h / 2 + props.onHover.borderWidth
+                                })
 
                                 tooltip//.attr('transform', 'translate(' + (cursorOnLeft ? pointX + 50 : pointX - tooltipWidth - 50) + ',' + (pointY - (tooltipHeight / 2)) + ')')
                                     // .style('opacity', 0)
