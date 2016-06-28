@@ -456,19 +456,27 @@
 
                                 //  .style('opacity', 0);
 
-                                var growth = pointi === 0 ? null: pointData.val - d.values[pointi - 1].val,
-                                    growthString = growth === null ? '':  growth > 0 ? '<span class="growUp">+' + growth + '</span>' : '<span class="growDown">' + growth + '</span>';
+                                var growth = pointi === 0 ? null : pointData.val - d.values[pointi - 1].val,
+                                    growthString = growth === null ? '' : growth > 0 ? '<span class="growUp">+' + getGrowth(growth) + '</span>' : '<span class="growDown">' + getGrowth(growth) + '</span>';
+
+                                function getGrowth(d) {
+                                    return props.onHover.growthFormat ? props.onHover.growthFormat(d) : d;
+                                }
+
+                                function getValue(d) {
+                                    return props.onHover.valueFormat ? props.onHover.valueFormat(d) : d;
+                                }
 
                                 tooltip.html('<div class="tooltipTitle">' + (props.onHover.labels ? props.onHover.labels[d.name] : d.name) + '</div>'
                                     + '<div class="description">Labor had the greatest PC in this period</div>'
                                     + '<div class="date">' + dateFormat(pointData.date) + '</div>'
-                                    + '<div class="value">' + growthString + ' (' + pointData.val + ')</div>'
+                                    + '<div class="value">' + growthString + ' (' + getValue(pointData.val) + ')</div>'
                                 );
 
                                 var h = $(tooltip.node()).outerHeight();
 
                                 tooltipContainer.attr({
-                                    'x': width/2 - d3.mouse(this)[0] > 0 ? pointX + tooltipPadding : pointX - tooltipWidth - tooltipPadding,
+                                    'x': width / 2 - d3.mouse(this)[0] > 0 ? pointX + tooltipPadding : pointX - tooltipWidth - tooltipPadding,
                                     'y': pointY - (h / 2)
                                 })
 

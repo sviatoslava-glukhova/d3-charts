@@ -1,7 +1,7 @@
 (function () {
 
     var areaChartData = [
-            {"value3": 2, "value1": 3, "date": "20111212"},
+            {"value3": 2.98, "value1": 3.07, "date": "20111212"},
             {"value3": 6, "value1": 8, "date": "20111213"},
             {"value3": 7, "value1": 1, "date": "20111214"},
             {"value3": 1, "value1": 3, "date": "20111215"},
@@ -61,7 +61,13 @@
                 },
                 tooltipWidth: 200,
                 tooltipDateFormat: '%d %B',
-                borderWidth: 2
+                borderWidth: 2,
+                growthFormat: function (d) {
+                    return Math.floor(d)
+                },
+                valueFormat: function (d) {
+                    return d / 1000 + 'th'
+                }
             }
         },
         areaChartWithLegend = {
