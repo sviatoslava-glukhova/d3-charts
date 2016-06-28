@@ -32,6 +32,14 @@ body {
     padding: 20px;
 }
 
+#timeAreaChartSimple .growUp {
+    color: green;
+}
+
+#timeAreaChartSimple .growDown {
+    color: red;
+}
+
 #groupedBarChart {
     background-color: #fafafa;
 }

@@ -417,6 +417,7 @@
                             d1 = d.values[i],
                             cursorOnLeft = x0 - d0.date > d1.date - x0,
                             pointData = cursorOnLeft ? d1 : d0,
+                            pointi = cursorOnLeft ? i : i - 1,
                             pointX = x(pointData.date),
                             pointY = y(pointData.val);
 
@@ -491,11 +492,16 @@
                                     'x': cursorOnLeft ? pointX + 50 : pointX - tooltipWidth - 50,
                                     'y': pointY - (tooltipHeight / 2)
                                 })
-                                  //  .style('opacity', 0);
+                                //  .style('opacity', 0);
+
+                                var growth = pointData.val - d.values[pointi-1].val,
+                                    growthString = growth > 0 ? '<span class="growUp">+'+growth+'</span>' : '<span class="growDown">'+growth+'</span>';
 
                                 tooltip.html('<div class="tooltipTitle">' + (props.onHover.labels ? props.onHover.labels[d.name] : d.name) + '</div>'
-                                    + '<div class="value">(' + pointData.val + ')</div>'
+                                    + '<div class="description">Labor had the greatest PC in this period</div>'
                                     + '<div class="date">' + dateFormat(pointData.date) + '</div>'
+                                    + '<div class="value">'+ growthString +' (' + pointData.val + ')</div>'
+
                                 );
 
                                 tooltip//.attr('transform', 'translate(' + (cursorOnLeft ? pointX + 50 : pointX - tooltipWidth - 50) + ',' + (pointY - (tooltipHeight / 2)) + ')')
