@@ -60,7 +60,8 @@
 
                 },
                 tooltipWidth: 200,
-                tooltipDateFormat: '%d %B'
+                tooltipDateFormat: '%d %B',
+                borderWidth: 2
             }
         },
         areaChartWithLegend = {

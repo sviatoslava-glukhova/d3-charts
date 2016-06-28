@@ -397,8 +397,9 @@
                 var bisectDate = d3.bisector(function (d) {
                         return d.date;
                     }).left,
+                    tooltipPadding = 80,
                     hoverPoint, tooltip, initPointX, initPointY,
-                    tooltipContainer, tooltip, dateFormat = d3.time.format(props.onHover.tooltipDateFormat);
+                    tooltipContainer, tooltip, border, dateFormat = d3.time.format(props.onHover.tooltipDateFormat);
 
                 hoverCharts.append("path")
                     .attr("class", "hoverLine")
@@ -426,21 +427,17 @@
                             initPointY = pointY;
 
                             if (props.onHover.showTooltip) {
-                                var tooltipHeight = 100,
-                                    tooltipWidth = props.onHover.tooltipWidth;
+                                var tooltipWidth = props.onHover.tooltipWidth;
 
                                 if (!tooltip) {
-                                    /*  tooltip = svg.append('g').classed('chartTooltip', true)
-                                     .append('g')
-                                     .classed('chartTooltip', true)
-                                     .style('opacity', 0)
-                                     .attr('transform', 'translate(' + (cursorOnLeft ? pointX + 50 : pointX - tooltipWidth - 50) + ',' + (pointY - (tooltipHeight / 2)) + ')')
-                                     */
-                                    /*                              tooltip.append('rect')
-                                     .style('fill', 'white')
-                                     .attr({height: tooltipHeight, width: tooltipWidth});
+                                    border = svg.append('rect')
+                                        .attr({
+                                            fill: 'none',
+                                            stroke: 'white',
+                                            'stroke-width': props.onHover.borderWidth,
+                                            width: tooltipPadding * 2
+                                        });
 
-                                     */
                                     tooltipContainer = svg.append('foreignObject')
                                         .attr({
                                             'width': tooltipWidth
@@ -451,58 +448,31 @@
                                         .attr({
                                             'class': 'chartTooltip'
                                         });
-
-
-                                    // title = tooltip.append('text')
-                                    /*            .classed('title', true)
-                                     .attr({
-                                     'transform': 'translate(20,20)',
-                                     "text-anchor": 'start'
-                                     });
-
-                                     value = tooltip.append('text')
-                                     .classed('value', true)
-                                     .attr({
-                                     'transform': 'translate(20,40)',
-                                     "text-anchor": 'start'
-                                     });
-
-                                     date = tooltip.append('text')
-                                     .classed('date', true)
-                                     .attr({
-                                     'transform': 'translate(20,60)',
-                                     "text-anchor": 'start'
-                                     })*/
                                 }
 
+                                border.attr({
+                                    x: pointX - tooltipPadding
+                                });
 
-                                /*                         title.text(function () {
-                                 return props.onHover.labels ? props.onHover.labels[d.name] : d.name;
-                                 });
-
-                                 value.text(function () {
-                                 return pointData.val;
-                                 });
-
-                                 date.text(function () {
-                                 return dateFormat(pointData.date);
-                                 });*/
-
-                                tooltipContainer.attr({
-                                    'x': cursorOnLeft ? pointX + 50 : pointX - tooltipWidth - 50,
-                                    'y': pointY - (tooltipHeight / 2)
-                                })
                                 //  .style('opacity', 0);
 
-                                var growth = pointData.val - d.values[pointi-1].val,
-                                    growthString = growth > 0 ? '<span class="growUp">+'+growth+'</span>' : '<span class="growDown">'+growth+'</span>';
+                                var growth = pointData.val - d.values[pointi - 1].val,
+                                    growthString = growth > 0 ? '<span class="growUp">+' + growth + '</span>' : '<span class="growDown">' + growth + '</span>';
 
                                 tooltip.html('<div class="tooltipTitle">' + (props.onHover.labels ? props.onHover.labels[d.name] : d.name) + '</div>'
                                     + '<div class="description">Labor had the greatest PC in this period</div>'
                                     + '<div class="date">' + dateFormat(pointData.date) + '</div>'
-                                    + '<div class="value">'+ growthString +' (' + pointData.val + ')</div>'
-
+                                    + '<div class="value">' + growthString + ' (' + pointData.val + ')</div>'
                                 );
+
+                                var h = $(tooltip.node()).outerHeight();
+
+                                tooltipContainer.attr({
+                                    'x': cursorOnLeft ? pointX + tooltipPadding : pointX - tooltipWidth - tooltipPadding,
+                                    'y': pointY - (h / 2)
+                                })
+
+                                border.attr({'height': h - props.onHover.borderWidth, 'y': pointY - h / 2 + props.onHover.borderWidth})
 
                                 tooltip//.attr('transform', 'translate(' + (cursorOnLeft ? pointX + 50 : pointX - tooltipWidth - 50) + ',' + (pointY - (tooltipHeight / 2)) + ')')
                                     // .style('opacity', 0)
