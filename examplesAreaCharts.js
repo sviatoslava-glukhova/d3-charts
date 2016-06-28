@@ -48,7 +48,8 @@
                 showPoints: true,
                 showTooltip: true,
                 hoverLineWidth: 20,
-                pointDiameter: 5
+                pointDiameter: 5,
+                pointBorder: 2
             }
         },
         areaChartWithLegend = {

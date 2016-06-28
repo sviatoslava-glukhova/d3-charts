@@ -253,7 +253,8 @@
                         show: false,
                         hoverLineWidth: 5,
                         hoverLineColor: null,
-                        pointDiameter: 5
+                        pointDiameter: 5,
+                        pointBorder: 1
                     }
                 },
                 props = $.extend(true, defaults, options);
@@ -396,7 +397,7 @@
                 var bisectDate = d3.bisector(function (d) {
                         return d.date;
                     }).left,
-                    hoverPoint;
+                    hoverPoint, tooltip;
 
                 hoverCharts.append("path")
                     .attr("class", "hoverLine")
@@ -413,16 +414,27 @@
                             i = bisectDate(d.values, x0),
                             d0 = d.values[i - 1],
                             d1 = d.values[i],
-                            pointData = x0 - d0.date > d1.date - x0 ? d1 : d0;
+                            pointData = x0 - d0.date > d1.date - x0 ? d1 : d0,
+                            pointX = x(pointData.date),
+                            pointY =  y(pointData.val);
+
+                        if (props.onHover.showTooltip) {
+                            tooltip = svg.append('g')
+                                .classed('tooltip', true)
+                                .attr('transform', 'translate('+ pointX +')')
+                                .append('rect')
+                                .attr({height: 100, width: 100})
+                        }
 
                         if (!hoverPoint || !hoverPoint.length) {
                             hoverPoint = svg.append('circle')
                                 .classed('hoverPoint', true)
                         }
-                        hoverPoint.attr('cx', x(pointData.date))
-                            .attr('cy', y(pointData.val))
+                        hoverPoint.attr('cx', pointX)
+                            .attr('cy', pointY)
                             .attr('r', props.onHover.pointDiameter)
                             .attr('fill', 'white')
+                            .attr('stroke-width', props.onHover.pointBorder)
                             .attr('stroke', 'red');
 
                         //  focus.attr("transform", "translate(" + x(d.date) + "," + y(d.close) + ")");
