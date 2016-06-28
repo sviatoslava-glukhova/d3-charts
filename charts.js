@@ -441,7 +441,7 @@
                                     tooltipContainer = svg.append('foreignObject')
                                         .attr({
                                             'width': tooltipWidth
-                                        })
+                                        });
 
                                     tooltip = tooltipContainer.append('xhtml:div')
                                         .append('div')
@@ -473,10 +473,11 @@
                                     + '<div class="value">' + growthString + ' (' + getValue(pointData.val) + ')</div>'
                                 );
 
-                                var h = $(tooltip.node()).outerHeight();
+                                var h = $(tooltip.node()).outerHeight(),
+                                    w = $(tooltip.node()).outerWidth();
 
                                 tooltipContainer.attr({
-                                    'x': width / 2 - d3.mouse(this)[0] > 0 ? pointX + tooltipPadding : pointX - tooltipWidth - tooltipPadding,
+                                    'x': width / 2 - d3.mouse(this)[0] > 0 ? pointX + tooltipPadding : pointX - w - tooltipPadding,
                                     'y': pointY - (h / 2)
                                 })
 
