@@ -1,12 +1,12 @@
 (function () {
 
     var areaChartData = [
-            {"value3": 2, "date": "20111212"},
-            {"value3": 6, "date": "20111213"},
-            {"value3": 7, "date": "20111214"},
-            {"value3": 1, "date": "20111215"},
-            {"value3": 6, "date": "20111216"},
-            {"value3": 8, "date": "20111217"}
+            {"value3": 2, "value1": 3, "date": "20111212"},
+            {"value3": 6, "value1": 8, "date": "20111213"},
+            {"value3": 7, "value1": 1, "date": "20111214"},
+            {"value3": 1, "value1": 3, "date": "20111215"},
+            {"value3": 6, "value1": 5, "date": "20111216"},
+            {"value3": 8, "value1": 10, "date": "20111217"}
         ],
         areaChartData2 = [
                 {"value1": 7, "value3": 2, "date": "20111212"},
@@ -21,13 +21,14 @@
             dimentions: {
                 height: 400
             },
-         //  chartBottomPadding: 60,
+           chartBottomPadding: 200,
             colors: [
-                "#d9f1f2"
+                "rgba(17, 180, 228, 0.3)",
+                "rgba(102, 101, 107, 0.8)"
             ],
             strokeWidth: 0,
             margins: {
-                bottom: 100
+                // bottom: 100
             },
             xAxis: {
                 showAxis: true,
@@ -42,6 +43,12 @@
                 ticksLeftPadding: 10,
                 showTicksText: true,
                 tickFormat: function(d) {return d;}
+            },
+            onHover: {
+                showPoints: true,
+                showTooltip: true,
+                hoverLineWidth: 20,
+                pointDiameter: 5
             }
         },
         areaChartWithLegend = {

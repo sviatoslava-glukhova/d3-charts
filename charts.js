@@ -248,6 +248,12 @@
                         show: false,
                         appendTo: 'body',
                         keysAliases: null
+                    },
+                    onHover: {
+                        show: false,
+                        hoverLineWidth: 5,
+                        hoverLineColor: null,
+                        pointDiameter: 5
                     }
                 },
                 props = $.extend(true, defaults, options);
@@ -308,6 +314,7 @@
                     return height;
                 });
 
+
             var keys = d3.keys(data[0]),
                 xKeys = keys.filter(function (key) {
                     return key !== props.xAxis.datePropName;
@@ -351,6 +358,83 @@
 
             y.domain([dataMin, dataMax]);
 
+
+            var chart = svg.selectAll(".chart")
+                .data(charts)
+                .enter().append("g")
+                .attr("class", "chart");
+
+            chart.append("path")
+                .attr("class", "line")
+                .attr("d", "M0,0")
+                .style("stroke", function (d) {
+                    return strokeColor(d.name);
+                })
+                .style('stroke-width', props.strokeWidth)
+                .style('fill', function (d) {
+                    return color(d.name)
+                })
+                .transition()
+                .duration(animationDuration)
+                .attrTween("d", tween);
+
+            if (props.onHover.showPoints || props.onHover.showTooltip) {
+                var hoverCharts = svg.selectAll(".hoverChart")
+                    .data(charts)
+                    .enter().append("g")
+                    .attr("class", "chart");
+
+                var hoverLine = d3.svg.line()
+                    .interpolate(props.interpolate)
+                    .x(function (d) {
+                        return x(d[props.xAxis.datePropName]);
+                    })
+                    .y(function (d) {
+                        return y(d.val);
+                    });
+
+                var bisectDate = d3.bisector(function (d) {
+                        return d.date;
+                    }).left,
+                    hoverPoint;
+
+                hoverCharts.append("path")
+                    .attr("class", "hoverLine")
+                    .attr("d", function (d) {
+                        return hoverLine(d.values);
+                    })
+                    .style("stroke", function () {
+                        return props.onHover.hoverLineColor ? props.onHover.hoverLineColor : 'rgba(0,0,0,0)';
+                    })
+                    .style('stroke-width', props.onHover.hoverLineWidth)
+                    .style('fill', 'none')
+                    .on('mousemove', function (d, i) {
+                        var x0 = x.invert(d3.mouse(this)[0]),
+                            i = bisectDate(d.values, x0),
+                            d0 = d.values[i - 1],
+                            d1 = d.values[i],
+                            pointData = x0 - d0.date > d1.date - x0 ? d1 : d0;
+
+                        if (!hoverPoint || !hoverPoint.length) {
+                            hoverPoint = svg.append('circle')
+                                .classed('hoverPoint', true)
+                        }
+                        hoverPoint.attr('cx', x(pointData.date))
+                            .attr('cy', y(pointData.val))
+                            .attr('r', props.onHover.pointDiameter)
+                            .attr('fill', 'white')
+                            .attr('stroke', 'red');
+
+                        //  focus.attr("transform", "translate(" + x(d.date) + "," + y(d.close) + ")");
+                        // focus.select("text").text(formatCurrency(d.close));
+
+                    })
+                    .on('mouseleave', function () {
+                        hoverPoint.remove();
+                        hoverPoint = null;
+                    });
+            }
+
             if (props.xAxis.showAxis) {
                 xAxis = svg.append("g")
                     .attr("class", "x axis")
@@ -377,26 +461,6 @@
                     yAxis.selectAll('.tick text').remove();
                 }
             }
-
-
-            var chart = svg.selectAll(".chart")
-                .data(charts)
-                .enter().append("g")
-                .attr("class", "chart");
-
-            chart.append("path")
-                .attr("class", "line")
-                .attr("d", "M0,0")
-                .style("stroke", function (d) {
-                    return strokeColor(d.name);
-                })
-                .style('stroke-width', props.strokeWidth)
-                .style('fill', function (d) {
-                    return color(d.name)
-                })
-                .transition()
-                .duration(animationDuration)
-                .attrTween("d", tween)
 
             if (props.showLineLabels) {
                 chart.append("text")
@@ -444,7 +508,6 @@
                     d.values.forEach(function (value) {
                         data.push({val: scale(value.val), date: value.date}); //TODO REMOVE
                     });
-                    console.log(data)
 
                     return area(data);
                 }
