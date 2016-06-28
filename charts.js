@@ -257,7 +257,8 @@
                 svgHeight = props.dimentions.height ? props.dimentions.height : $(parent[0][0]).height(),
                 width = svgWidth - props.margins.left - props.margins.right,
                 height = svgHeight - props.margins.top - props.margins.bottom,
-                animationDuration = 700;
+                animationDuration = 700,
+                dataMin, dataMax;
 
             var parseDate = d3.time.format(props.xAxis.dateFormat).parse;
 
@@ -333,22 +334,22 @@
                 };
             });
 
+            dataMin = d3.min(charts, function (c) {
+                return d3.min(c.values, function (v) {
+                    return v.val;
+                });
+            });
+            dataMax = d3.max(charts, function (c) {
+                return d3.max(c.values, function (v) {
+                    return v.val;
+                });
+            });
+
             x.domain(d3.extent(data, function (d) {
                 return d.date;
             }));
 
-            y.domain([
-                d3.min(charts, function (c) {
-                    return d3.min(c.values, function (v) {
-                        return v.val;
-                    });
-                }),
-                d3.max(charts, function (c) {
-                    return d3.max(c.values, function (v) {
-                        return v.val;
-                    });
-                })
-            ]);
+            y.domain([dataMin, dataMax]);
 
             if (props.xAxis.showAxis) {
                 xAxis = svg.append("g")
@@ -432,20 +433,18 @@
             }
 
             function tween(d, i, a) {
-                var absMax = d3.max(d.values, function (value) {
-                        return value.val;
-                    }),
-                    scale = d3.scale.linear()
-                        .domain([0, absMax]);
+                var scale = d3.scale.linear()
+                    .domain([dataMin, dataMax]);
 
                 return function (t) {
-                    var data = [];
-                    scale.range([0, absMax * t]);
+                    var data = [],
+                        max = dataMax * t > dataMin ? dataMax * t : dataMin; //TODO fix the ugly fix
+                    scale.range([dataMin, max]);
 
                     d.values.forEach(function (value) {
                         data.push({val: scale(value.val), date: value.date}); //TODO REMOVE
                     });
-
+                    console.log(data)
 
                     return area(data);
                 }

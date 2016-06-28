@@ -19,15 +19,15 @@
         simpleAreaChartOptions = {
             appendTo: '#timeAreaChartSimple',
             dimentions: {
-                height: 300
+                height: 400
             },
-           chartBottomPadding: 60,
+         //  chartBottomPadding: 60,
             colors: [
                 "#d9f1f2"
             ],
             strokeWidth: 0,
             margins: {
-                bottom: 50
+                bottom: 100
             },
             xAxis: {
                 showAxis: true,
