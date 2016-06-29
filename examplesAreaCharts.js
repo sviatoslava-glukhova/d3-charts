@@ -34,7 +34,8 @@
                 showAxis: true,
                 showTicksText: true,
                 dateFormat: '%Y%m%d',
-                tickFormat: '%d %B'
+                tickFormat: '%d %B',
+                showVerticalLines: true
             },
             yAxis: {
                 showAxis: true,
@@ -43,8 +44,10 @@
                 ticksLeftPadding: 10,
                 showTicksText: true,
                 tickFormat: function (d) {
-                    return d;
-                }
+                    return d/1000;
+                },
+                showHorizontalLines: true,
+                tickTopPadding: 7
             },
             onHover: {
                 showPoints: true,

@@ -241,6 +241,7 @@
                         showTicksText: false,
                         showTicksInside: false,
                         ticksLeftPadding: 10,
+                        tickTopPadding: 0,
                         tickFormat: null
                     },
                     showLineLabels: false,
@@ -250,11 +251,23 @@
                         keysAliases: null
                     },
                     onHover: {
-                        show: false,
-                        hoverLineWidth: 5,
-                        hoverLineColor: null,
-                        pointDiameter: 5,
-                        pointBorder: 1
+                            showPoints: false,
+                            showTooltip: false,
+                            hoverLineWidth: 10,
+                            pointDiameter: 5,
+                            pointBorder: 1,
+                            pointMovementDuration: 100,
+                            tooltipTransitionsDuration: 500,
+                            labels: {
+                                value3: "Administrative services",
+                                value1: "Sirgical Supplies"
+
+                            },
+                            tooltipWidth: 200,
+                            tooltipDateFormat: '%d %B',
+                            borderWidth: 2,
+                            growthFormat: null, //function(d){return d;}
+                            valueFormat: null //function (d){return d;}
                     }
                 },
                 props = $.extend(true, defaults, options);
@@ -454,7 +467,6 @@
                                     x: pointX - tooltipPadding
                                 });
 
-                                //  .style('opacity', 0);
 
                                 var growth = pointi === 0 ? null : pointData.val - d.values[pointi - 1].val,
                                     growthString = growth === null ? '' : growth > 0 ? '<span class="growUp">+' + getGrowth(growth) + '</span>' : '<span class="growDown">' + getGrowth(growth) + '</span>';
@@ -479,16 +491,14 @@
                                 tooltipContainer.attr({
                                     'x': width / 2 - d3.mouse(this)[0] > 0 ? pointX + tooltipPadding : pointX - w - tooltipPadding,
                                     'y': pointY - (h / 2)
-                                })
+                                });
 
                                 border.attr({
                                     'height': h - props.onHover.borderWidth,
                                     'y': pointY - h / 2 + props.onHover.borderWidth
-                                })
+                                });
 
-                                tooltip//.attr('transform', 'translate(' + (cursorOnLeft ? pointX + 50 : pointX - tooltipWidth - 50) + ',' + (pointY - (tooltipHeight / 2)) + ')')
-                                    // .style('opacity', 0)
-                                    .transition()
+                                tooltip.transition()
                                     .duration(props.onHover.tooltipTransitionsDuration)
                                     .delay(props.onHover.pointMovementDuration)
                                     .style('opacity', 1)
@@ -512,21 +522,9 @@
                                 .style('opacity', 1)
                                 .attr('cx', pointX)
                                 .attr('cy', pointY);
-
-                            //  focus.attr("transform", "translate(" + x(d.date) + "," + y(d.close) + ")");
-                            // focus.select("text").text(formatCurrency(d.close));
                         }
 
                     })
-                    .on('mouseleave', function () {
-                        /*   hoverPoint.transition()
-                         .duration(props.onHover.transitionLength)
-                         .style('opacity', 0);
-
-                         tooltip.transition()
-                         .duration(props.onHover.transitionLength)
-                         .style('opacity', 0);*/
-                    });
             }
 
             if (props.xAxis.showAxis) {
@@ -541,18 +539,26 @@
             }
 
             if (props.yAxis.showAxis) {
+                if (props.yAxis.showTicksInside) {
+                    yAxis.tickPadding(props.yAxis.ticksLeftPadding * -1);
+                }
+
                 yAxis = svg.append("g")
                     .attr("class", "y axis")
                     .call(yAxis);
 
+                var yTicks = yAxis.selectAll('.tick text');
+
                 if (props.yAxis.showTicksInside) {
-                    yAxis.selectAll('.tick text')
-                        .style('text-anchor', 'start')
-                        .attr('x', props.yAxis.ticksLeftPadding)
+                    yTicks.style('text-anchor', 'start');
+                }
+
+                if (props.yAxis.showHorizontalLines) {
+                    yTicks.attr('y', props.yAxis.tickTopPadding);
                 }
 
                 if (!props.yAxis.showTicksText) {
-                    yAxis.selectAll('.tick text').remove();
+                    yTicks.remove();
                 }
             }
 
@@ -1305,35 +1311,5 @@
         }
     };
 
-    function debounceD3Event(func, wait, immediate) {
-        var timeout;
-        return function () {
-            var context = this;
-            var args = arguments;
-            var evt = d3.event;
-
-            var later = function () {
-                timeout = null;
-                if (!immediate) {
-                    var tmpEvent = d3.event;
-                    d3.event = evt;
-                    func.apply(context, args);
-                    d3.event = tmpEvent;
-                }
-            };
-
-            var callNow = immediate && !timeout;
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-            if (callNow) {
-                var tmpEvent = d3.event;
-                d3.event = evt;
-                func.apply(context, args);
-                d3.event = tmpEvent;
-            }
-
-        };
-    }
-
     window.Charts = charts;
-}())
+}());
