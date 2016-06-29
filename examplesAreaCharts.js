@@ -21,33 +21,33 @@
             dimentions: {
                 height: 400
             },
-            chartBottomPadding: 200,
+            chartBottomPadding: 0,
             colors: [
                 "rgba(17, 180, 228, 0.3)",
                 "rgba(102, 101, 107, 0.8)"
             ],
-            strokeWidth: 0,
-            margins: {
-                // bottom: 100
-            },
             xAxis: {
                 showAxis: true,
-                showTicksText: true,
+                ticksCount: 12,
                 dateFormat: '%Y%m%d',
-                tickFormat: '%d %B',
+                datePropName: 'date',
+                showTicksText: true,
+                tickFormat: '%B',
                 showVerticalLines: true
             },
+            margins: {bottom: 40, top: 55},
             yAxis: {
                 showAxis: true,
                 ticksCount: 10,
                 showTicksInside: true,
                 ticksLeftPadding: 10,
                 showTicksText: true,
-                tickFormat: function (d) {
-                    return d/1000;
-                },
                 showHorizontalLines: true,
-                tickTopPadding: 7
+                tickTopPadding: 7,
+                ticksLeftPadding: 10,
+                tickFormat: function (d) {
+                    return d / 1000 + 'k';
+                }
             },
             onHover: {
                 showPoints: true,
@@ -60,17 +60,18 @@
                 labels: {
                     value3: "Administrative services",
                     value1: "Sirgical Supplies"
-
                 },
                 tooltipWidth: 200,
-                tooltipDateFormat: '%d %B',
+                tooltipDateFormat: '%d %b',
                 borderWidth: 2,
+                showHoveredLine: true,
                 growthFormat: function (d) {
-                    return Math.floor(d)
+                    return d.toFixed(2);
                 },
                 valueFormat: function (d) {
-                    return d / 1000 + 'th'
+                    return d.toFixed(2);
                 }
+
             }
         },
         areaChartWithLegend = {

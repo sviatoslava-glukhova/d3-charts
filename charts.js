@@ -251,23 +251,21 @@
                         keysAliases: null
                     },
                     onHover: {
-                            showPoints: false,
-                            showTooltip: false,
-                            hoverLineWidth: 10,
-                            pointDiameter: 5,
-                            pointBorder: 1,
-                            pointMovementDuration: 100,
-                            tooltipTransitionsDuration: 500,
-                            labels: {
-                                value3: "Administrative services",
-                                value1: "Sirgical Supplies"
-
-                            },
-                            tooltipWidth: 200,
-                            tooltipDateFormat: '%d %B',
-                            borderWidth: 2,
-                            growthFormat: null, //function(d){return d;}
-                            valueFormat: null //function (d){return d;}
+                        showPoints: false,
+                        showTooltip: false,
+                        hoverLineWidth: 10,
+                        pointDiameter: 5,
+                        pointBorder: 1,
+                        pointMovementDuration: 100,
+                        tooltipTransitionsDuration: 500,
+                        labels: null, //an object - key is what replace, value - to what replace
+                        tooltipWidth: 200,
+                        tooltipDateFormat: '%d %B',
+                        borderWidth: 2,
+                        hoverLineColor: 'rgba(0,0,0,0)',
+                        showHoveredLine: false,
+                        growthFormat: null, //function(d){return d;}
+                        valueFormat: null //function (d){return d;}
                     }
                 },
                 props = $.extend(true, defaults, options);
@@ -393,12 +391,14 @@
                 .attrTween("d", tween);
 
             if (props.onHover.showPoints || props.onHover.showTooltip) {
-                var hoverCharts = svg.selectAll(".hoverChart")
-                    .data(charts)
-                    .enter().append("g")
-                    .attr("class", "chart");
+                var bisectDate = d3.bisector(function (d) {
+                        return d.date;
+                    }).left,
+                    tooltipPadding = 80,
+                    hoverPoint, tooltip, initPointX, initPointY,
+                    tooltipContainer, tooltip, border, dateFormat = d3.time.format(props.onHover.tooltipDateFormat);
 
-                var hoverLine = d3.svg.line()
+                var line = d3.svg.line()
                     .interpolate(props.interpolate)
                     .x(function (d) {
                         return x(d[props.xAxis.datePropName]);
@@ -407,24 +407,36 @@
                         return y(d.val);
                     });
 
-                var bisectDate = d3.bisector(function (d) {
-                        return d.date;
-                    }).left,
-                    tooltipPadding = 80,
-                    hoverPoint, tooltip, initPointX, initPointY,
-                    tooltipContainer, tooltip, border, dateFormat = d3.time.format(props.onHover.tooltipDateFormat);
+                if (props.onHover.showHoveredLine) {
+                    var hoveredLines = svg.selectAll(".hoveredLine")
+                        .data(charts)
+                        .enter().append("g")
+                        .attr("class", "hoveredLine")
+                        .append("path")
+                        .attr("d", function (d) {
+                            return line(d.values);
+                        })
+                        .style("stroke", 'none')
+                        .style('stroke-width', 2)
+                        .style('fill', 'none')
+                }
 
-                hoverCharts.append("path")
-                    .attr("class", "hoverLine")
+                var hoverCharts = svg.selectAll(".hoverChart")
+                    .data(charts)
+                    .enter().append("g")
+                    .attr("class", "hoverChart");
+
+
+                  hoverCharts.append("path")
                     .attr("d", function (d) {
-                        return hoverLine(d.values);
+                        return line(d.values);
                     })
                     .style("stroke", function () {
-                        return props.onHover.hoverLineColor ? props.onHover.hoverLineColor : 'rgba(0,0,0,0)';
+                        return props.onHover.hoverLineColor;
                     })
                     .style('stroke-width', props.onHover.hoverLineWidth)
                     .style('fill', 'none')
-                    .on('mousemove', function (d, i) {
+                    .on('mousemove', function (d, iter) {
                         var x0 = x.invert(d3.mouse(this)[0]),
                             i = bisectDate(d.values, x0),
                             d0 = d.values[i - 1],
@@ -438,6 +450,12 @@
                         if (initPointX !== pointX || initPointY !== pointY) {
                             initPointX = pointX;
                             initPointY = pointY;
+
+                            if (props.onHover.showHoveredLine){
+                                hoveredLines.style('stroke', function(data, iterator) {
+                                   return iterator == iter ? 'white' : 'none';
+                                });
+                            }
 
                             if (props.onHover.showTooltip) {
                                 var tooltipWidth = props.onHover.tooltipWidth;
@@ -466,7 +484,6 @@
                                 border.attr({
                                     x: pointX - tooltipPadding
                                 });
-
 
                                 var growth = pointi === 0 ? null : pointData.val - d.values[pointi - 1].val,
                                     growthString = growth === null ? '' : growth > 0 ? '<span class="growUp">+' + getGrowth(growth) + '</span>' : '<span class="growDown">' + getGrowth(growth) + '</span>';
