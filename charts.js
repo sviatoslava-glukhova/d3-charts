@@ -431,7 +431,6 @@
                     .enter().append("g")
                     .attr("class", "hoverChart");
 
-
                 hoverCharts.append("path")
                     .attr("d", function (d) {
                         return line(d.values);
@@ -442,18 +441,31 @@
                     .style('stroke-width', props.onHover.hoverLineWidth)
                     .style('fill', 'none');
 
-                hoverPoint = svg.append('circle')
+                var layer1 = svg.append('g').classed('layer1', true),
+                    layer2 = svg.append('g').classed('layer2', true);
+
+                hoverPoint = layer2.append('circle')
                     .classed('hoverPoint', true)
                     .attr({
-                        r: props.onHover.pointDiameter,
-                        /* cx: pointX,
-                         cy: pointY,*/
+                        r: props.onHover.pointDiameter + 2,
                         fill: 'white',
                         'stroke-width': props.onHover.pointBorder,
-                        stroke: 'red'
-                        // opacity: 1
+                        stroke: 'red',
+                        opacity: 0
                     })
-                    .style('cursor', 'pointer');
+                    .style({
+                        cursor: 'pointer'
+                    });
+
+                activePoint = layer2.append('circle')
+                    .classed('activePoint', true)
+                    .attr({
+                        r: props.onHover.pointDiameter,
+                        fill: 'white',
+                        'stroke-width': props.onHover.pointBorder,
+                        stroke: 'red',
+                        opacity: 0
+                    });
 
 
                 hoverCharts.on('mousemove', function (d, iter) {
@@ -487,13 +499,13 @@
                                 cy: pointY,
                                 fill: 'white',
                                 'stroke-width': props.onHover.pointBorder,
-                                opacity: 1
+                                //  opacity: 1
                             });
                         }
 
                         hoverPoint.transition()
                             .duration(props.onHover.pointMovementDuration)
-                            .style('opacity', 1)
+                            .style('opacity', 0.7)
                             .attr({
                                 cx: pointX,
                                 cy: pointY
@@ -505,10 +517,27 @@
 
                 hoverPoint.on('click', function (d, iter) {
                     props.onHover.showTooltip && showTooltip(d, iter);
+                    markHoveredLine(d.data.name);
+                    pinActivePoint(this);
                 });
             }
 
             props.legend.show && showLegend();
+
+            function pinActivePoint(pointToClone) {
+                activePoint.attr({
+                    cx: d3.select(pointToClone).attr('cx'),
+                    cy: d3.select(pointToClone).attr('cy'),
+                    opacity: 1
+                });
+
+            }
+
+            function markHoveredLine(name) {
+                hoveredLines.style("stroke", function (d) {
+                    return d.name === name ? 'white': 'none';
+                });
+            }
 
             function showTooltip(d, iter) {
                 var tooltipWidth = props.onHover.tooltipWidth,
@@ -516,7 +545,7 @@
                     pointData = chartData.values[d.pointi];
 
                 if (!tooltip) {
-                    var windowBorder = svg.append('g').classed('borderWindow', true);
+                    var windowBorder = layer1.append('g').classed('borderWindow', true);
                     // windowBorder.append('clipPath');
 
                     clipPath = windowBorder.append('clipPath')
