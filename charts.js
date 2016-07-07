@@ -396,7 +396,7 @@
                     }).left,
                     tooltipPadding = 80,
                     hoverPoint, tooltip, initPointX, initPointY,
-                    tooltipContainer, tooltip, border, clipPath, borderedChart, borderedChartData, dateFormat = d3.time.format(props.onHover.tooltipDateFormat);
+                    tooltipContainer, tooltip, border, clipPath, borderedChart, borderedChartData = [], dateFormat = d3.time.format(props.onHover.tooltipDateFormat);
 
                 var line = d3.svg.line()
                     .interpolate(props.interpolate)
@@ -509,10 +509,13 @@
                                     x: pointX - tooltipPadding
                                 });
 
-                                borderedChartData = [d.values[pointi - 1], pointData, d.values[pointi + 1]];
+                                borderedChartData.length = 0;
+                                pointi > 0 && borderedChartData.push(d.values[pointi - 1]);
+                                borderedChartData.push(pointData);
+                                pointi < d.values.length - 1 && borderedChartData.push(d.values[pointi + 1]);
 
                                 borderedChart.datum(borderedChartData)
-                                    .attr("d", function (d) {//debugger
+                                    .attr("d", function (d) {
                                         return line(d);
                                     });
 
