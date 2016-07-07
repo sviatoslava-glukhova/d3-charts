@@ -396,7 +396,7 @@
                     }).left,
                     tooltipPadding = 80,
                     hoverPoint, tooltip, initPointX, initPointY,
-                    tooltipContainer, tooltip, border, dateFormat = d3.time.format(props.onHover.tooltipDateFormat);
+                    tooltipContainer, tooltip, border, clipPath, borderedChart, borderedChartData, dateFormat = d3.time.format(props.onHover.tooltipDateFormat);
 
                 var line = d3.svg.line()
                     .interpolate(props.interpolate)
@@ -427,7 +427,7 @@
                     .attr("class", "hoverChart");
 
 
-                  hoverCharts.append("path")
+                hoverCharts.append("path")
                     .attr("d", function (d) {
                         return line(d.values);
                     })
@@ -451,9 +451,9 @@
                             initPointX = pointX;
                             initPointY = pointY;
 
-                            if (props.onHover.showHoveredLine){
-                                hoveredLines.style('stroke', function(data, iterator) {
-                                   return iterator == iter ? 'white' : 'none';
+                            if (props.onHover.showHoveredLine) {
+                                hoveredLines.style('stroke', function (data, iterator) {
+                                    return iterator == iter ? 'white' : 'none';
                                 });
                             }
 
@@ -461,7 +461,28 @@
                                 var tooltipWidth = props.onHover.tooltipWidth;
 
                                 if (!tooltip) {
-                                    border = svg.append('rect')
+                                    var windowBorder = svg.append('g').classed('borderWindow', true);
+                                    // windowBorder.append('clipPath');
+
+                                    clipPath = windowBorder.append('clipPath')
+                                        .attr({
+                                            id: 'clip-border-chart'
+                                        })
+                                        .append('rect')
+                                        .attr({
+                                            width: tooltipPadding * 2
+                                        });
+
+                                    borderedChart = windowBorder.append("g")
+                                        .attr("class", "borderedChart")
+                                        .datum(borderedChartData)
+                                        .append("path")
+                                        .style("stroke", 'red')
+                                        .style('stroke-width', 2)
+                                        .attr("clip-path", "url(#clip-border-chart)")
+                                        .style('fill', 'none');
+
+                                    border = windowBorder.append('rect')
                                         .attr({
                                             fill: 'none',
                                             stroke: 'white',
@@ -480,10 +501,20 @@
                                             'class': 'chartTooltip'
                                         });
                                 }
+                                clipPath.attr({
+                                    x: pointX - tooltipPadding
+                                });
 
                                 border.attr({
                                     x: pointX - tooltipPadding
                                 });
+
+                                borderedChartData = [d.values[pointi - 1], pointData, d.values[pointi + 1]];
+
+                                borderedChart.datum(borderedChartData)
+                                    .attr("d", function (d) {//debugger
+                                        return line(d);
+                                    });
 
                                 var growth = pointi === 0 ? null : pointData.val - d.values[pointi - 1].val,
                                     growthString = growth === null ? '' : growth > 0 ? '<span class="growUp">+' + getGrowth(growth) + '</span>' : '<span class="growDown">' + getGrowth(growth) + '</span>';
@@ -511,6 +542,10 @@
                                 });
 
                                 border.attr({
+                                    'height': h - props.onHover.borderWidth,
+                                    'y': pointY - h / 2 + props.onHover.borderWidth
+                                });
+                                clipPath.attr({
                                     'height': h - props.onHover.borderWidth,
                                     'y': pointY - h / 2 + props.onHover.borderWidth
                                 });
