@@ -390,13 +390,18 @@
                 .duration(animationDuration)
                 .attrTween("d", tween);
 
+            props.xAxis.showAxis && drawXAxis();
+            props.yAxis.showAxis && drawYAxis();
+            props.showLineLabels && drawLineLabels();
+
             if (props.onHover.showPoints || props.onHover.showTooltip) {
                 var bisectDate = d3.bisector(function (d) {
                         return d.date;
                     }).left,
                     tooltipPadding = 80,
-                    hoverPoint, tooltip, initPointX, initPointY,
+                    hoverPoint, activePoint, tooltip, initPointX, initPointY,
                     tooltipContainer, tooltip, border, clipPath, borderedChart, borderedChartData = [], dateFormat = d3.time.format(props.onHover.tooltipDateFormat);
+
 
                 var line = d3.svg.line()
                     .interpolate(props.interpolate)
@@ -435,154 +440,216 @@
                         return props.onHover.hoverLineColor;
                     })
                     .style('stroke-width', props.onHover.hoverLineWidth)
-                    .style('fill', 'none')
-                    .on('mousemove', function (d, iter) {
-                        var x0 = x.invert(d3.mouse(this)[0]),
-                            i = bisectDate(d.values, x0),
-                            d0 = d.values[i - 1],
-                            d1 = d.values[i],
-                            cursorOnLeft = x0 - d0.date > d1.date - x0,
-                            pointData = cursorOnLeft ? d1 : d0,
-                            pointi = cursorOnLeft ? i : i - 1,
-                            pointX = x(pointData.date),
-                            pointY = y(pointData.val);
+                    .style('fill', 'none');
 
-                        if (initPointX !== pointX || initPointY !== pointY) {
-                            initPointX = pointX;
-                            initPointY = pointY;
+                hoverPoint = svg.append('circle')
+                    .classed('hoverPoint', true)
+                    .attr({
+                        r: props.onHover.pointDiameter,
+                        /* cx: pointX,
+                         cy: pointY,*/
+                        fill: 'white',
+                        'stroke-width': props.onHover.pointBorder,
+                        stroke: 'red'
+                        // opacity: 1
+                    })
+                    .style('cursor', 'pointer');
 
-                            if (props.onHover.showHoveredLine) {
-                                hoveredLines.style('stroke', function (data, iterator) {
-                                    return iterator == iter ? 'white' : 'none';
-                                });
-                            }
 
-                            if (props.onHover.showTooltip) {
-                                var tooltipWidth = props.onHover.tooltipWidth;
+                hoverCharts.on('mousemove', function (d, iter) {
+                    var xCoord = d3.mouse(this)[0],
+                        x0 = x.invert(xCoord),
+                        i = bisectDate(d.values, x0),
+                        d0 = d.values[i - 1],
+                        d1 = d.values[i],
+                        cursorOnLeft = x0 - d0.date > d1.date - x0,
+                        pointData = cursorOnLeft ? d1 : d0,
+                        pointi = cursorOnLeft ? i : i - 1,
+                        pointX = x(pointData.date),
+                        pointY = y(pointData.val);
 
-                                if (!tooltip) {
-                                    var windowBorder = svg.append('g').classed('borderWindow', true);
-                                    // windowBorder.append('clipPath');
+                    if (initPointX !== pointX || initPointY !== pointY) {
+                        initPointX = pointX;
+                        initPointY = pointY;
 
-                                    clipPath = windowBorder.append('clipPath')
-                                        .attr({
-                                            id: 'clip-border-chart'
-                                        })
-                                        .append('rect')
-                                        .attr({
-                                            width: tooltipPadding * 2
-                                        });
+                        hoverPoint.datum({
+                            pointi: pointi,
+                            data: d,
+                            pointX: pointX,
+                            pointY: pointY,
+                            xCoord: xCoord
+                        });
 
-                                    borderedChart = windowBorder.append("g")
-                                        .attr("class", "borderedChart")
-                                        .datum(borderedChartData)
-                                        .append("path")
-                                        .style("stroke", 'red')
-                                        .style('stroke-width', 2)
-                                        .attr("clip-path", "url(#clip-border-chart)")
-                                        .style('fill', 'none');
-
-                                    border = windowBorder.append('rect')
-                                        .attr({
-                                            fill: 'none',
-                                            stroke: 'white',
-                                            'stroke-width': props.onHover.borderWidth,
-                                            width: tooltipPadding * 2
-                                        });
-
-                                    tooltipContainer = svg.append('foreignObject')
-                                        .attr({
-                                            'width': tooltipWidth
-                                        });
-
-                                    tooltip = tooltipContainer.append('xhtml:div')
-                                        .append('div')
-                                        .attr({
-                                            'class': 'chartTooltip'
-                                        });
-                                }
-                                clipPath.attr({
-                                    x: pointX - tooltipPadding
-                                });
-
-                                border.attr({
-                                    x: pointX - tooltipPadding
-                                });
-
-                                borderedChartData.length = 0;
-                                pointi > 0 && borderedChartData.push(d.values[pointi - 1]);
-                                borderedChartData.push(pointData);
-                                pointi < d.values.length - 1 && borderedChartData.push(d.values[pointi + 1]);
-
-                                borderedChart.datum(borderedChartData)
-                                    .attr("d", function (d) {
-                                        return line(d);
-                                    });
-
-                                var growth = pointi === 0 ? null : pointData.val - d.values[pointi - 1].val,
-                                    growthString = growth === null ? '' : growth > 0 ? '<span class="growUp">+' + getGrowth(growth) + '</span>' : '<span class="growDown">' + getGrowth(growth) + '</span>';
-
-                                function getGrowth(d) {
-                                    return props.onHover.growthFormat ? props.onHover.growthFormat(d) : d;
-                                }
-
-                                function getValue(d) {
-                                    return props.onHover.valueFormat ? props.onHover.valueFormat(d) : d;
-                                }
-
-                                tooltip.html('<div class="tooltipTitle">' + (props.onHover.labels ? props.onHover.labels[d.name] : d.name) + '</div>'
-                                    + '<div class="description">Labor had the greatest PC in this period</div>'
-                                    + '<div class="date">' + dateFormat(pointData.date) + '</div>'
-                                    + '<div class="value">' + growthString + ' (' + getValue(pointData.val) + ')</div>'
-                                );
-
-                                var h = $(tooltip.node()).outerHeight(),
-                                    w = $(tooltip.node()).outerWidth();
-
-                                tooltipContainer.attr({
-                                    'x': width / 2 - d3.mouse(this)[0] > 0 ? pointX + tooltipPadding : pointX - w - tooltipPadding,
-                                    'y': pointY - (h / 2)
-                                });
-
-                                border.attr({
-                                    'height': h - props.onHover.borderWidth,
-                                    'y': pointY - h / 2 + props.onHover.borderWidth
-                                });
-                                clipPath.attr({
-                                    'height': h - props.onHover.borderWidth,
-                                    'y': pointY - h / 2 + props.onHover.borderWidth
-                                });
-
-                                tooltip.transition()
-                                    .duration(props.onHover.tooltipTransitionsDuration)
-                                    .delay(props.onHover.pointMovementDuration)
-                                    .style('opacity', 1)
-
-                            }
-
-                            if (!hoverPoint || !hoverPoint.length) {
-                                hoverPoint = svg.append('circle')
-                                    .classed('hoverPoint', true)
-                                    .attr('r', props.onHover.pointDiameter)
-                                    .attr('fill', 'white')
-                                    .attr('stroke-width', props.onHover.pointBorder)
-                                    .attr('stroke', 'red')
-                                    .attr('cx', pointX)
-                                    .attr('cy', pointY)
-                                    .style('opacity', 1);
-                            }
-
-                            hoverPoint.transition()
-                                .duration(props.onHover.pointMovementDuration)
-                                .style('opacity', 1)
-                                .attr('cx', pointX)
-                                .attr('cy', pointY);
+                        if (!hoverPoint || !hoverPoint.length) {
+                            hoverPoint.attr({
+                                r: props.onHover.pointDiameter,
+                                cx: pointX,
+                                cy: pointY,
+                                fill: 'white',
+                                'stroke-width': props.onHover.pointBorder,
+                                opacity: 1
+                            });
                         }
 
-                    })
+                        hoverPoint.transition()
+                            .duration(props.onHover.pointMovementDuration)
+                            .style('opacity', 1)
+                            .attr({
+                                cx: pointX,
+                                cy: pointY
+                            })
+                            .attr('cy', pointY);
+                    }
+
+                });
+
+                hoverPoint.on('click', function (d, iter) {
+                    props.onHover.showTooltip && showTooltip(d, iter);
+                });
             }
 
-            if (props.xAxis.showAxis) {
+            props.legend.show && showLegend();
+
+            function showTooltip(d, iter) {
+                var tooltipWidth = props.onHover.tooltipWidth,
+                    chartData = d.data,
+                    pointData = chartData.values[d.pointi];
+
+                if (!tooltip) {
+                    var windowBorder = svg.append('g').classed('borderWindow', true);
+                    // windowBorder.append('clipPath');
+
+                    clipPath = windowBorder.append('clipPath')
+                        .attr({
+                            id: 'clip-border-chart'
+                        })
+                        .append('rect')
+                        .attr({
+                            width: tooltipPadding * 2
+                        });
+
+                    borderedChart = windowBorder.append("g")
+                        .attr("class", "borderedChart")
+                        .datum(borderedChartData)
+                        .append("path")
+                        .style("stroke", 'red')
+                        .style('stroke-width', 2)
+                        .attr("clip-path", "url(#clip-border-chart)")
+                        .style('fill', 'none');
+
+                    border = windowBorder.append('rect')
+                        .attr({
+                            fill: 'none',
+                            stroke: 'white',
+                            'stroke-width': props.onHover.borderWidth,
+                            width: tooltipPadding * 2
+                        });
+
+                    tooltipContainer = svg.append('foreignObject')
+                        .attr({
+                            'width': tooltipWidth
+                        });
+
+                    tooltip = tooltipContainer.append('xhtml:div')
+                        .append('div')
+                        .attr({
+                            'class': 'chartTooltip'
+                        });
+                }
+                clipPath.attr({
+                    x: d.pointX - tooltipPadding
+                });
+
+                border.attr({
+                    x: d.pointX - tooltipPadding
+                });
+
+                borderedChartData.length = 0;
+                d.pointi > 0 && borderedChartData.push(chartData.values[d.pointi - 1]);
+                borderedChartData.push(pointData);
+                d.pointi < chartData.values.length - 1 && borderedChartData.push(chartData.values[d.pointi + 1]);
+
+                borderedChart.datum(borderedChartData)
+                    .attr("d", function (d) {
+                        return line(d);
+                    });
+
+                var growth = d.pointi === 0 ? null : pointData.val - chartData.values[d.pointi - 1].val,
+                    growthString = growth === null ? '' : growth > 0 ? '<span class="growUp">+' + getGrowth(growth) + '</span>' : '<span class="growDown">' + getGrowth(growth) + '</span>';
+
+                function getGrowth(d) {
+                    return props.onHover.growthFormat ? props.onHover.growthFormat(d) : d;
+                }
+
+                function getValue(d) {
+                    return props.onHover.valueFormat ? props.onHover.valueFormat(d) : d;
+                }
+
+                tooltip.html('<div class="tooltipTitle">' + (props.onHover.labels ? props.onHover.labels[chartData.name] : chartData.name) + '</div>'
+                    + '<div class="description">Labor had the greatest PC in this period</div>'
+                    + '<div class="date">' + dateFormat(pointData.date) + '</div>'
+                    + '<div class="value">' + growthString + ' (' + getValue(pointData.val) + ')</div>'
+                );
+
+                var h = $(tooltip.node()).outerHeight(),
+                    w = $(tooltip.node()).outerWidth();
+
+                tooltipContainer.attr({
+                    'x': width / 2 - d.xCoord > 0 ? d.pointX + tooltipPadding : d.pointX - w - tooltipPadding,
+                    'y': d.pointY - (h / 2)
+                });
+
+                border.attr({
+                    'height': h - props.onHover.borderWidth,
+                    'y': d.pointY - h / 2 + props.onHover.borderWidth
+                });
+                clipPath.attr({
+                    'height': h - props.onHover.borderWidth,
+                    'y': d.pointY - h / 2 + props.onHover.borderWidth
+                });
+
+                tooltip.transition()
+                    .duration(props.onHover.tooltipTransitionsDuration)
+                    .delay(props.onHover.pointMovementDuration)
+                    .style('opacity', 1)
+            };
+
+
+            function drawLineLabels() {
+                chart.append("text")
+                    .datum(function (d) {
+                        return {name: d.name, value: d.values[d.values.length - 1]};
+                    })
+                    .attr("transform", function (d) {
+                        return "translate(" + x(d.value[props.xAxis.datePropName]) + "," + y(d.value.val) + ")";
+                    })
+                    .attr("x", 3)
+                    .attr("dy", ".35em")
+                    .text(function (d) {
+                        return d.name;
+                    });
+            }
+
+            function showLegend() {
+                var template = '<div class="lineChartLegend"><table>',
+                    container = d3.select(props.legend.appendTo).append('div').style('opacity', 0),
+                    resultKey;
+
+
+                xKeys.forEach(function (key) {
+                    resultKey = props.legend.keysAliases ? props.legend.keysAliases[key] : key,
+                        template += '<tr><td><div class="color-example" style="background-color:' + color(key) + '"></div></td><td>' + resultKey + '</td></tr>'
+                });
+
+                template += '</table></div>';
+
+                container.html([template])
+                    .transition()
+                    .duration(300)
+                    .style('opacity', 1);
+            }
+
+            function drawXAxis() {
                 xAxis = svg.append("g")
                     .attr("class", "x axis")
                     .attr("transform", "translate(0," + height + ")")
@@ -593,7 +660,7 @@
                 }
             }
 
-            if (props.yAxis.showAxis) {
+            function drawYAxis() {
                 if (props.yAxis.showTicksInside) {
                     yAxis.tickPadding(props.yAxis.ticksLeftPadding * -1);
                 }
@@ -615,40 +682,6 @@
                 if (!props.yAxis.showTicksText) {
                     yTicks.remove();
                 }
-            }
-
-            if (props.showLineLabels) {
-                chart.append("text")
-                    .datum(function (d) {
-                        return {name: d.name, value: d.values[d.values.length - 1]};
-                    })
-                    .attr("transform", function (d) {
-                        return "translate(" + x(d.value[props.xAxis.datePropName]) + "," + y(d.value.val) + ")";
-                    })
-                    .attr("x", 3)
-                    .attr("dy", ".35em")
-                    .text(function (d) {
-                        return d.name;
-                    });
-            }
-
-            if (props.legend.show) {
-                var template = '<div class="lineChartLegend"><table>',
-                    container = d3.select(props.legend.appendTo).append('div').style('opacity', 0),
-                    resultKey;
-
-
-                xKeys.forEach(function (key) {
-                    resultKey = props.legend.keysAliases ? props.legend.keysAliases[key] : key,
-                        template += '<tr><td><div class="color-example" style="background-color:' + color(key) + '"></div></td><td>' + resultKey + '</td></tr>'
-                });
-
-                template += '</table></div>';
-
-                container.html([template])
-                    .transition()
-                    .duration(300)
-                    .style('opacity', 1);
             }
 
             function tween(d, i, a) {
